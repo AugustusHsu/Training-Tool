@@ -8,19 +8,48 @@
 
 # here put the import lib
 import os
-from view.GetInfoWindow import GetInfoWindow
+from view.MainWindow import MainWindow
+from PySide6.QtWidgets import (
+    QFileDialog,
+)
+from PySide6 import QtCore
 
 class GetInfoController:
     def __init__(self):
-        self.windows = GetInfoWindow()
-        self._SetupOpenFileWidget(self.windows.getinfowidget.openfilewidget)
+        self.windows = MainWindow()
+        self._SetupGetInfoWidget(self.windows.getinfowidget)
         
         self.windows.show()
-    
-    def _SetupOpenFileWidget(self, openfilewideget):
-        def _load_path():
-            python_path = openfilewideget.pyfile_path.text()
+        
+    def _SetupGetInfoWidget(self, getinfowidget):
+        @QtCore.Slot(str, str)
+        def print_path(msg1, msg2):
+            print('Path: ' + msg1)
+            print('Path: ' + msg2)
             
-            print(os.path.isfile(python_path) and python_path[-3:] == '.py')
+        @QtCore.Slot()
+        def OpenPyFile():
+            filename, _ = QFileDialog.getOpenFileName(
+                getinfowidget.openfilewidget,
+                "Open file", 
+                "./",
+                "Python Files (*.py);;All Files (*)"
+            )
+            getinfowidget.openfilewidget.pyfile_path.setText(filename)
+        
+        @QtCore.Slot()
+        def OpenPython():
+            filename, _ = QFileDialog.getOpenFileName(
+                getinfowidget.selectpythonwidget,
+                "Open file", 
+                "./",
+                # "Python Files (*.py);;All Files (*)"
+                "All Files (*);;Python Files (*.py)"
+            )
+            getinfowidget.selectpythonwidget.python_path.setText(filename)
             
-        openfilewideget.ok_btn.clicked.connect(_load_path)
+        getinfowidget.openfilewidget.PressOpen.connect(OpenPyFile)
+        getinfowidget.selectpythonwidget.PressOpen.connect(OpenPython)
+        getinfowidget.PressOK.connect(print_path)
+        
+        

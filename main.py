@@ -10,8 +10,10 @@
 import sys
 from Controller import GetInfoController
 from PySide6 import QtWidgets
+from view.GetInfoWindow.SubWidget import SelectPythonWidget
 
 if __name__ == "__main__":
     app = QtWidgets.QApplication(sys.argv)
     ctr = GetInfoController()
+    # ctr.show()
     app.exec_()

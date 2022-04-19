@@ -11,15 +11,14 @@ from PySide6.QtWidgets import (
     QWidget, 
     QMainWindow,
 )
-from view.GetInfoWidget import GetInfoWidget
-from view.GetInfoWidget import GetInfoWidget
+from view.GetInfoWindow.Widget import GetInfoWidget
 
-class GetInfoWindow(QMainWindow):
+class MainWindow(QMainWindow):
     def __init__(self):
-        super(GetInfoWindow, self).__init__()
+        super(MainWindow, self).__init__()
         self._widget = QWidget()
         # 設置視窗的初始位置跟大小、應用程式的標題
-        self.setGeometry(600,300,500,50)
+        self.setGeometry(200,300,640*1.5,360*1.5)
         self.setWindowTitle('StackedWidget 例子')
         self.getinfowidget = GetInfoWidget(self)
         self.setCentralWidget(self.getinfowidget)
