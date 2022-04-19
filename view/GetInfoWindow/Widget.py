@@ -10,6 +10,8 @@
 from view.GetInfoWindow.SubWidget import (
     OpenFileWidget, 
     SelectPythonWidget,
+    ShowParameterWidget,
+    ParameterListWidget
 )
 from PySide6.QtWidgets import (
     QWidget, 
@@ -23,16 +25,18 @@ class GetInfoWidget(QWidget):
         super(GetInfoWidget, self).__init__(parent)
         self.openfilewidget = OpenFileWidget(self)
         self.selectpythonwidget = SelectPythonWidget(self)
+        self.showparameter = ShowParameterWidget(self)
         self._setupUI()
         
     def _setupUI(self):
         f_layout = QVBoxLayout()
         f_layout.addWidget(self.selectpythonwidget)
         f_layout.addWidget(self.openfilewidget)
+        f_layout.addWidget(self.showparameter)
         
         self.setLayout(f_layout)
         self.openfilewidget.ok_btn.clicked.connect(self._press_ok)
         
     def _press_ok(self):
-        self.PressOK.emit(self.openfilewidget.pyfile_path.text(),
-                          self.selectpythonwidget.python_path.text())
+        self.PressOK.emit(self.selectpythonwidget.python_path.text(),
+                          self.openfilewidget.pyfile_path.text())

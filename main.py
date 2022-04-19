@@ -4,16 +4,18 @@
 @Time    :   2022/04/14 23:42:53
 @Author  :   AugustusHsu
 @Contact :   jimhsu11@gmail.com
+
 '''
 
 # here put the import lib
 import sys
 from Controller import GetInfoController
 from PySide6 import QtWidgets
-from view.GetInfoWindow.SubWidget import SelectPythonWidget
+from view.GetInfoWindow.SubWidget import ParameterListWidget
 
 if __name__ == "__main__":
     app = QtWidgets.QApplication(sys.argv)
     ctr = GetInfoController()
+    # ctr = ParameterListWidget()
     # ctr.show()
-    app.exec_()
+    app.exec()
