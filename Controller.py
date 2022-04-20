@@ -117,11 +117,13 @@ class GetInfoController:
                 RightStack.addWidget(right_widget)
         @QtCore.Slot()
         def _press_delete():
-            # FIXME 連續刪除會有問題 (刪除後會跳到最後的list對應的stack，所以導致stack刪掉的是最後一個而list不是)
             sel_items = LeftList.ParameterList.selectedItems()
-            for item in sel_items:
-                LeftList.ParameterList.removeItemWidget(item)
-            RightStack.removeWidget(RightStack.currentWidget())
+            if sel_items:
+                for item in sel_items:
+                    idx = LeftList.ParameterList.row(item)
+                    LeftList.ParameterList.takeItem(idx)
+                    widgetToRemove = RightStack.widget(idx)
+                    RightStack.removeWidget(widgetToRemove)
         
         LeftList.PressEdit.connect(_press_edit)
         LeftList.PressAdd.connect(_press_add)
