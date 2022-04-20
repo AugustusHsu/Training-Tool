@@ -18,4 +18,4 @@ if __name__ == "__main__":
     ctr = GetInfoController()
     # ctr = ParameterListWidget()
     # ctr.show()
-    app.exec()
+    app.exec_()
