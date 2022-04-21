@@ -63,7 +63,7 @@ class GetInfoController:
             selectpythonwidget.python_path.setText(filename)
         selectpythonwidget.PressOpen.connect(OpenPython)
     
-    # TODO Add the abls parameter
+    # TODO Add the abls parameter loader
     def _SetupGetInfoWidget(self, getinfowidget):
         self._SetupOpenFileWidget(getinfowidget.openfilewidget)
         self._SetupSelectPythonWidget(getinfowidget.selectpythonwidget)
@@ -76,6 +76,7 @@ class GetInfoController:
         getinfowidget.PressOK.connect(print_path)
         self._SetupLeftList(getinfowidget.showparameter.LeftList,
                             getinfowidget.showparameter.RightStack)
+        getinfowidget.ClossBTN.connect(self._exit)
     
     def load_parameter(self, showparameter, leftlist, rightlist):
         # 用測試資料創建左邊list資料、添加右邊stack資料
@@ -109,7 +110,7 @@ class GetInfoController:
                     ParameterEmpty(self.windows)
                     LeftList.PressEdit.emit()
                 elif ok:
-                    # TODO 排除重複的名稱
+                    # TODO 排除重複的名稱，或當名稱重複跳出警告
                     sel_items = LeftList.ParameterList.selectedItems()
                     for item in sel_items:
                         item.setText(str(text))
@@ -164,7 +165,7 @@ class GetInfoController:
                     ParameterEmpty(self.windows)
                     stack.PressEdit.emit()
                 elif ok:
-                    # TODO 排除重複的名稱，當名稱重複跳出警告
+                    # TODO 排除重複的名稱，或當名稱重複跳出警告
                     for item in sel_items:
                         item.setText(str(text))
         @QtCore.Slot()
@@ -192,3 +193,8 @@ class GetInfoController:
         stack.PressEdit.connect(_press_edit)
         stack.PressAdd.connect(_press_add)
         stack.PressDelete.connect(_press_delete)
+
+    @QtCore.Slot()
+    def _exit(self):
+        self.windows.close()
+
