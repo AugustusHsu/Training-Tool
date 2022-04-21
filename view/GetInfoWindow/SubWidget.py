@@ -146,7 +146,6 @@ class ParameterListWidget(QWidget):
     def _press_add(self):
         self.PressAdd.emit()
         
-    # TODO Delet the left parameter need to delete the right stack
     def _press_delete(self):
         self.PressDelete.emit()
         
