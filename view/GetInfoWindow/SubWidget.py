@@ -126,7 +126,7 @@ class ParameterListWidget(QWidget):
         self.edit_btn.setFixedSize(30, 30)
         self.add_btn.setFixedSize(30, 30)
         self.delete_btn.setFixedSize(30, 30)
-        BtnBox=QHBoxLayout()
+        BtnBox = QHBoxLayout()
         BtnBox.addStretch(1)
         BtnBox.addWidget(self.edit_btn)
         BtnBox.addWidget(self.add_btn)
