@@ -21,6 +21,14 @@
 
 - [ ] Resize the Widget Size
 
+### ABSL support type
+
+1. `DEFINE_string`
+2. `DEFINE_boolean`
+3. `DEFINE_float`
+4. `DEFINE_integer`
+5. `DEFINE_enum`
+6. `DEFINE_list`
 
 ## Search Image Function
 

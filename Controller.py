@@ -9,14 +9,15 @@
 # here put the import lib
 import os
 from view.MainWindow import MainWindow
-from view.GetInfoWindow.SubWidget import ParameterListWidget
+from view.GetInfoWindow.SubWidget import RightListWidget
 from PySide6.QtWidgets import (
     QFileDialog,
     QFormLayout,
     QLineEdit,
     QWidget,
     QInputDialog,
-    QMessageBox
+    QMessageBox,
+    QTableWidgetItem
 )
 from view.Dialog import (
     NoSelectDialog_edit,
@@ -24,12 +25,7 @@ from view.Dialog import (
     ParameterEmpty
 )
 from PySide6 import QtCore
-        
-# TODO abls test data
-def test():
-    rightlist = [[1,2,3], [True,False,3], ['1','2','3'], [44345,26234]]
-    leftlist = ['test{}'.format(i) for i in range(len(rightlist))]
-    return leftlist, rightlist
+from utils import GetABSLFlags, ParseDict
 
 class GetInfoController:
     def __init__(self):
@@ -56,7 +52,7 @@ class GetInfoController:
             filename, _ = QFileDialog.getOpenFileName(
                 selectpythonwidget,
                 "Open file", 
-                "./",
+                "\\home",
                 # "Python Files (*.py);;All Files (*)"
                 "All Files (*);;Python Files (*.py)"
             )
@@ -68,83 +64,102 @@ class GetInfoController:
         self._SetupOpenFileWidget(getinfowidget.openfilewidget)
         self._SetupSelectPythonWidget(getinfowidget.selectpythonwidget)
         @QtCore.Slot(str, str)
-        def print_path(msg1, msg2):
+        def load_parameter(msg1, msg2):
             print('Path: ' + msg1)
             print('Path: ' + msg2)
-            leftlist, rightlist = test()
-            self.load_parameter(getinfowidget.showparameter, leftlist, rightlist)
-        getinfowidget.PressOK.connect(print_path)
-        self._SetupLeftList(getinfowidget.showparameter.LeftList,
-                            getinfowidget.showparameter.RightStack)
+            # FIXME 預防空白的輸入
+            # FIXME load新的py要clear table和list
+            
+            # DEBUG 預設的路徑與py檔來讀入FLAG_DICT
+            FLAG_DICT = GetABSLFlags('python', 'test_file/test-absl.py')
+            flags, value_list, attr_list = ParseDict(FLAG_DICT)
+            self._ShowData([flags, value_list, attr_list], 
+                           getinfowidget.RightStack,
+                           getinfowidget.LeftTable)
+            
+        getinfowidget.PressOK.connect(load_parameter)
         getinfowidget.ClossBTN.connect(self._exit)
-    
-    def load_parameter(self, showparameter, leftlist, rightlist):
+        
+    def _ShowData(self, FlagData, RightStack, LeftTable):
+        flags, value_list, attr_list = FlagData
         # 用測試資料創建左邊list資料、添加右邊stack資料
-        for idx, left_item in enumerate(leftlist):
-            showparameter.LeftList.ParameterList.insertItem(idx, left_item)
+        LeftTable.table.setRowCount(len(flags))
+        
+        # Load Data
+        for idx, row in enumerate(attr_list):
+            LeftTable.table.setItem(idx, 0, QTableWidgetItem(str(flags[idx])))
+            for idj, item in enumerate(row):
+                LeftTable.table.setItem(idx, idj+1, QTableWidgetItem(str(item)))
+        
         def stackUI(rightitem):
-            # FIXME 如果parameter有東西，需要添加保護，或是有其他對應stack的方法使其對應變成唯一
-            stack = ParameterListWidget(showparameter.RightStack)
+            stack = RightListWidget(RightStack)
             for item in rightitem:
                 stack.ParameterList.addItem(str(item))
             # 賦予右邊stack按鈕的功能
             self._SetupStackItem(stack)
             return stack
-        for rightitem in rightlist:
+        for rightitem in value_list:
             right_widget = stackUI(rightitem)
-            showparameter.RightStack.addWidget(right_widget)
+            RightStack.addWidget(right_widget)
+    
+    
+    def _SetupRightList(self, RightStack):
+        pass
+    
+    def _SetupLeftTable(self, lefttablewidget):
+        pass
         
-    def _SetupLeftList(self, LeftList, RightStack):
+    def _SetupLeftList(self, LeftTable, RightStack): 
         @QtCore.Slot()
         def _press_edit():
-            list_idx = LeftList.ParameterList.currentRow()
-            sel_items = LeftList.ParameterList.selectedItems()
+            list_idx = LeftTable.ParameterList.currentRow()
+            sel_items = LeftTable.ParameterList.selectedItems()
             if list_idx == -1:
                 NoSelectDialog_edit(self.windows)
             else: 
-                text, ok = QInputDialog.getText(LeftList, 
+                text, ok = QInputDialog.getText(LeftTable, 
                                                 'Edit Parameter', 
                                                 'Enter a argument:',
                                                 text=str(sel_items[0].text()))
                 if ok and text.strip() == '':
                     ParameterEmpty(self.windows)
-                    LeftList.PressEdit.emit()
+                    LeftTable.PressEdit.emit()
                 elif ok:
                     # TODO 排除重複的名稱，或當名稱重複跳出警告
-                    sel_items = LeftList.ParameterList.selectedItems()
+                    sel_items = LeftTable.ParameterList.selectedItems()
                     for item in sel_items:
                         item.setText(str(text))
         @QtCore.Slot()
         def _press_add():
-            text, ok = QInputDialog.getText(LeftList, 
+            text, ok = QInputDialog.getText(LeftTable, 
                                             'Add Parameter', 
                                             'Enter a argument:')
             if ok and text.strip() == '':
                 ParameterEmpty(self.windows)
-                LeftList.PressAdd.emit()
+                LeftTable.PressAdd.emit()
             elif ok:
-                LeftList.ParameterList.addItem(str(text))
-                right_widget = ParameterListWidget(RightStack)
+                LeftTable.ParameterList.addItem(str(text))
+                right_widget = RightListWidget(RightStack)
                 # 賦予右邊stack按鈕的功能
                 self._SetupStackItem(right_widget)
                 RightStack.addWidget(right_widget)
         @QtCore.Slot()
         def _press_delete():
-            list_idx = LeftList.ParameterList.currentRow()
+            list_idx = LeftTable.ParameterList.currentRow()
             if list_idx == -1:
                 NoSelectDialog_delete(self.windows)
             else:
-                sel_items = LeftList.ParameterList.selectedItems()
+                sel_items = LeftTable.ParameterList.selectedItems()
                 if sel_items:
                     for item in sel_items:
-                        idx = LeftList.ParameterList.row(item)
-                        LeftList.ParameterList.takeItem(idx)
+                        idx = LeftTable.ParameterList.row(item)
+                        LeftTable.ParameterList.takeItem(idx)
                         widgetToRemove = RightStack.widget(idx)
                         RightStack.removeWidget(widgetToRemove)
         
-        LeftList.PressEdit.connect(_press_edit)
-        LeftList.PressAdd.connect(_press_add)
-        LeftList.PressDelete.connect(_press_delete)
+        LeftTable.PressEdit.connect(_press_edit)
+        LeftTable.PressAdd.connect(_press_add)
+        LeftTable.PressDelete.connect(_press_delete)
         
     def _SetupStackItem(self, stack):
         stack.PressEdit
@@ -160,7 +175,7 @@ class GetInfoController:
                 text, ok = QInputDialog.getText(stack, 
                                                 'Edit Parameter', 
                                                 'Enter a argument:',
-                                                text =str(sel_items[0].text()))
+                                                text=str(sel_items[0].text()))
                 if ok and text.strip() == '':
                     ParameterEmpty(self.windows)
                     stack.PressEdit.emit()

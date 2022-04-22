@@ -11,11 +11,11 @@
 import sys
 from Controller import GetInfoController
 from PySide6 import QtWidgets
-from view.GetInfoWindow.SubWidget import ParameterListWidget
+from view.GetInfoWindow.SubWidget import LeftTableWidget
 
 if __name__ == "__main__":
     app = QtWidgets.QApplication(sys.argv)
     ctr = GetInfoController()
-    # ctr = ParameterListWidget()
+    # ctr = LeftTable()
     # ctr.show()
     app.exec_()
