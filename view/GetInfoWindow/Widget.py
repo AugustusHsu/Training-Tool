@@ -72,5 +72,4 @@ class GetInfoWidget(QWidget):
     
     def display(self, index, column):
         # 設置當前可視選項的索引
-        print(index)
         self.RightStack.setCurrentIndex(index)

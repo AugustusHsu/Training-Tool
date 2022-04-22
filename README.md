@@ -12,12 +12,11 @@
   - [x] Can Edit Item
     - [x] ~Use LineEdit or~Add `edit buttom` at right bottom
   - [ ] Check Box (Not Sure)
-  - [ ] `defualt` Parameter have Different Color or Icon
-- [ ] Check the parameter is independent
+  - [ ] `defualt` Parameter have Different Color or Icon (Not Sure)
+- [ ] Check the parameter is not duplicate
 - [x] Add StackWidget to Show the Paramter
 
-- [ ] Use TabWidget to construct other function
-- [ ] Right bottom button to send the parameter to next step
+- [ ] Make right bottom button to send the parameter to next step
 
 - [ ] Resize the Widget Size
 

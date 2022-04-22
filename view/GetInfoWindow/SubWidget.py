@@ -139,17 +139,13 @@ class LeftTableWidget(QWidget):
         self.table = QTableWidget(self)
         self._setupUI()
         
-        # TODO RemoveRow currentRow() (slot)removeRow()
-        
     def _setupUI(self):
         VBox=QVBoxLayout()
         # 表格有5個column
         self.table.setColumnCount(5)
         # column的文字
-        # FIXME default跟current不用，要刪除
         self.table.setHorizontalHeaderLabels(['flag', 'file', 'type', 
                                               'enum_value', 'meaning'])
-        # self.table.horizontalHeader().setSectionResizeMode(4,QHeaderView.Stretch)
         # 設定最後一個column延伸至最大
         # self.table.horizontalHeader().setStretchLastSection(True)
         # 沿水平方向擴展到符合item內容
@@ -179,24 +175,6 @@ class LeftTableWidget(QWidget):
         VBox.addLayout(BtnBox)
         self.setLayout(VBox)
         
-        # # data
-        # flags, attr_list, value_list = self.get_data()
-        # self.table.setRowCount(len(value_list))
-        
-        # for idx, row in enumerate(value_list):
-        #     for idj, item in enumerate(row):
-        #         self.table.setItem(idx, idj, QTableWidgetItem(str(item)))
-        
-    def get_data(self):
-        # python_file = 'C:\\Users\\jimhs\\anaconda3\\envs\\pyside6\\python.exe'
-        python_file = 'python'
-        ABSL_DICT = GetABSLFlags(python_file, 'test_file/test-absl.py')
-        flags, attr_list, value_list = ParseDict(ABSL_DICT)
-        return flags, attr_list, value_list
-    
-    def test_print(self, row, _):
-        print(row)
-        
     def _press_edit(self):
         self.PressEdit.emit()
     
@@ -204,11 +182,6 @@ class LeftTableWidget(QWidget):
         self.PressAdd.emit()
         
     def _press_delete(self):
-        for item in self.table.selectedRanges():
-            print(item.topRow(), item.leftColumn(), 
-                  item.bottomRow(), item.rightColumn())
-        if self.table.selectedRanges() == []:
-            print('None')
         self.PressDelete.emit()
 
 
