@@ -46,7 +46,7 @@ class GetInfoWidget(QWidget):
         ParameterBox.setStretch(0, 5)
         ParameterBox.setStretch(1, 2)
         f_layout.addLayout(ParameterBox)
-        # TODO 選擇左邊table會更換右邊的stack
+        
         self.LeftTable.table.cellClicked.connect(self.display)
         
         self.clos_btn = QPushButton('close', self)

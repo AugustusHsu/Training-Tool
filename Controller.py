@@ -25,7 +25,6 @@ class GetInfoController:
         
         self.windows.show()
     
-    # TODO Add the abls parameter loader
     def _SetupGetInfoWidget(self, getinfowidget):
         self._SetupOpenFileWidget(getinfowidget.openfilewidget)
         self._SetupSelectPythonWidget(getinfowidget.selectpythonwidget)
@@ -36,6 +35,7 @@ class GetInfoController:
             # FLAG_DICT = GetABSLFlags(msg1, msg2)
             # FIXME 預防空白的輸入
             # FIXME load新的py要clear table和list
+            self._ClearTable(getinfowidget.RightStack, getinfowidget.LeftTable) 
             
             # DEBUG 預設的路徑與py檔來讀入FLAG_DICT
             FLAG_DICT = GetABSLFlags('python', 'test_file/test-absl.py')
@@ -46,6 +46,13 @@ class GetInfoController:
             
         getinfowidget.PressOK.connect(load_parameter)
         getinfowidget.ClossBTN.connect(self._exit)
+        
+    def _ClearTable(self, RightStack, LeftTable):
+        n_row = LeftTable.table.rowCount()
+        for row in reversed(range(n_row)):
+            widgetToRemove = RightStack.widget(row)
+            RightStack.removeWidget(widgetToRemove)
+        LeftTable.table.clearContents()
         
     def _SetupOpenFileWidget(self, openfilewidget):
         @QtCore.Slot()
@@ -66,8 +73,8 @@ class GetInfoController:
                 selectpythonwidget,
                 "Open file", 
                 "\\home",
-                # "Python Files (*.py);;All Files (*)"
-                "All Files (*);;Python Files (*.py)"
+                "Python Files (*.py);;All Files (*)"
+                # "All Files (*);;Python Files (*.py)"
             )
             selectpythonwidget.python_path.setText(filename)
         selectpythonwidget.PressOpen.connect(OpenPython)
@@ -232,7 +239,6 @@ class GetInfoController:
                     LeftTable.table.removeRow(row)
                     widgetToRemove = RightStack.widget(row)
                     RightStack.removeWidget(widgetToRemove)
-                    print(RightStack.count())
                     
         LeftTable.PressEdit.connect(_press_edit)
         LeftTable.PressAdd.connect(_press_add)
