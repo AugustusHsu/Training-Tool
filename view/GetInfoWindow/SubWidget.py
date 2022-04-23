@@ -21,8 +21,13 @@ from PySide6.QtWidgets import (
     QFormLayout,
     QSpacerItem,
     QSizePolicy,
-    QInputDialog
+    QInputDialog,
+    QTableWidget,
+    QTableWidgetItem,
+    QHeaderView,
+    QAbstractItemView
 )
+from utils import GetABSLFlags, ParseDict
 from PySide6.QtCore import Signal
 from PySide6 import QtCore
 from PySide6 import QtGui
@@ -83,38 +88,12 @@ class OpenFileWidget(QWidget):
     def _press_open(self):
         self.PressOpen.emit()
 
-class ShowParameterWidget(QWidget):
-    def __init__(self, parent=None):
-        super(ShowParameterWidget, self).__init__(parent)
-        self.LeftList = ParameterListWidget(self)
-        self.RightStack = QStackedWidget(self)
-        self._setupUI()
-        
-    def _setupUI(self):
-        #水平布局，添加部件到布局中
-        HBox=QHBoxLayout()
-        HBox.addWidget(self.LeftList)
-        HBox.addWidget(self.RightStack)
-        
-        # TODO 可用滑動調整比例
-        # 左右布局的比例
-        HBox.setStretch(0, 1)
-        HBox.setStretch(1, 2)
-
-        self.setLayout(HBox)
- 
-        self.LeftList.ParameterList.currentRowChanged.connect(self.display)
-        
-    def display(self, index):
-        # 設置當前可視選項的索引
-        self.RightStack.setCurrentIndex(index)
-
-class ParameterListWidget(QWidget):
+class RightListWidget(QWidget):
     PressEdit = Signal()
     PressAdd = Signal()
     PressDelete = Signal()
     def __init__(self, parent=None):
-        super(ParameterListWidget, self).__init__(parent)
+        super(RightListWidget, self).__init__(parent)
         self.ParameterList = QListWidget()
         self._setupUI()
         
@@ -148,8 +127,62 @@ class ParameterListWidget(QWidget):
         
     def _press_delete(self):
         self.PressDelete.emit()
-        
 
+class LeftTableWidget(QWidget):
+    PressEdit = Signal()
+    PressAdd = Signal()
+    PressDelete = Signal()
+    def __init__(self, parent=None):
+        super(LeftTableWidget, self).__init__(parent)
+        # 設置視窗的初始位置跟大小、應用程式的標題
+        # self.setGeometry(200,300,640*1.5,360*1.5)
+        self.table = QTableWidget(self)
+        self._setupUI()
+        
+    def _setupUI(self):
+        VBox=QVBoxLayout()
+        # 表格有5個column
+        self.table.setColumnCount(5)
+        # column的文字
+        self.table.setHorizontalHeaderLabels(['flag', 'file', 'type', 
+                                              'enum_value', 'meaning'])
+        # 設定最後一個column延伸至最大
+        # self.table.horizontalHeader().setStretchLastSection(True)
+        # 沿水平方向擴展到符合item內容
+        self.table.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeToContents)
+        # 沿水平方向擴展到適當尺寸
+        self.table.horizontalHeader().setSectionResizeMode(self.table.columnCount()-1, 
+                                                           QHeaderView.Stretch)
+        VBox.addWidget(self.table)
+        
+        self.edit_btn = QPushButton(' ', self)
+        self.edit_btn.setIcon(QIcon('./media/edit.png'))
+        self.add_btn = QPushButton('+', self)
+        self.delete_btn = QPushButton('-', self)
+        self.edit_btn.setFixedSize(30, 30)
+        self.add_btn.setFixedSize(30, 30)
+        self.delete_btn.setFixedSize(30, 30)
+        BtnBox = QHBoxLayout()
+        BtnBox.addStretch(1)
+        BtnBox.addWidget(self.edit_btn)
+        BtnBox.addWidget(self.add_btn)
+        BtnBox.addWidget(self.delete_btn)
+        
+        self.edit_btn.clicked.connect(self._press_edit)
+        self.add_btn.clicked.connect(self._press_add)
+        self.delete_btn.clicked.connect(self._press_delete)
+        
+        VBox.addLayout(BtnBox)
+        self.setLayout(VBox)
+        
+    def _press_edit(self):
+        self.PressEdit.emit()
+    
+    def _press_add(self):
+        self.PressAdd.emit()
+        
+    def _press_delete(self):
+        self.PressDelete.emit()
 
 
 

@@ -10,14 +10,15 @@
 from view.GetInfoWindow.SubWidget import (
     OpenFileWidget, 
     SelectPythonWidget,
-    ShowParameterWidget,
-    ParameterListWidget,
-    QPushButton
+    LeftTableWidget
 )
 from PySide6.QtWidgets import (
     QWidget, 
     QVBoxLayout,
-    QHBoxLayout
+    QHBoxLayout,
+    QPushButton,
+    QCheckBox,
+    QStackedWidget
 )
 from PySide6.QtCore import Signal
 
@@ -28,18 +29,34 @@ class GetInfoWidget(QWidget):
         super(GetInfoWidget, self).__init__(parent)
         self.openfilewidget = OpenFileWidget(self)
         self.selectpythonwidget = SelectPythonWidget(self)
-        self.showparameter = ShowParameterWidget(self)
+        self.RightStack = QStackedWidget(self)
+        self.LeftTable = LeftTableWidget(self)
         self._setupUI()
         
     def _setupUI(self):
         f_layout = QVBoxLayout()
         f_layout.addWidget(self.selectpythonwidget)
         f_layout.addWidget(self.openfilewidget)
-        f_layout.addWidget(self.showparameter)
+        
+        ParameterBox = QHBoxLayout()
+        ParameterBox.addWidget(self.LeftTable)
+        ParameterBox.addWidget(self.RightStack)
+        # TODO 可用滑動調整比例
+        # 左右布局的比例
+        ParameterBox.setStretch(0, 5)
+        ParameterBox.setStretch(1, 2)
+        f_layout.addLayout(ParameterBox)
+        
+        self.LeftTable.table.cellClicked.connect(self.display)
+        
         self.clos_btn = QPushButton('close', self)
+        # TODO 左下的checkbox要新增功能
+        self.checkbox = QCheckBox('show', self)
         BtnBox = QHBoxLayout()
+        BtnBox.addWidget(self.checkbox)
         BtnBox.addStretch(1)
         BtnBox.addWidget(self.clos_btn)
+        
         f_layout.addLayout(BtnBox)
         
         self.setLayout(f_layout)
@@ -52,3 +69,7 @@ class GetInfoWidget(QWidget):
     
     def _press_close(self):
         self.ClossBTN.emit()
+    
+    def display(self, index, column):
+        # 設置當前可視選項的索引
+        self.RightStack.setCurrentIndex(index)
