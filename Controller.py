@@ -30,15 +30,14 @@ class GetInfoController:
         self._SetupSelectPythonWidget(getinfowidget.selectpythonwidget)
         @QtCore.Slot(str, str)
         def load_parameter(msg1, msg2):
+            # FIXME 預防空白的輸入
             print('Path: ' + msg1)
             print('Path: ' + msg2)
-            # FLAG_DICT = GetABSLFlags(msg1, msg2)
-            # FIXME 預防空白的輸入
-            # FIXME load新的py要clear table和list
-            self._ClearTable(getinfowidget.RightStack, getinfowidget.LeftTable) 
             
             # DEBUG 預設的路徑與py檔來讀入FLAG_DICT
             FLAG_DICT = GetABSLFlags('python', 'test_file/test-absl.py')
+            # FLAG_DICT = GetABSLFlags(msg1, msg2)
+            self._ClearTable(getinfowidget.RightStack, getinfowidget.LeftTable)
             flags, value_list, attr_list = ParseDict(FLAG_DICT)
             self._ShowData([flags, value_list, attr_list], 
                            getinfowidget.RightStack,
@@ -46,13 +45,6 @@ class GetInfoController:
             
         getinfowidget.PressOK.connect(load_parameter)
         getinfowidget.ClossBTN.connect(self._exit)
-        
-    def _ClearTable(self, RightStack, LeftTable):
-        n_row = LeftTable.table.rowCount()
-        for row in reversed(range(n_row)):
-            widgetToRemove = RightStack.widget(row)
-            RightStack.removeWidget(widgetToRemove)
-        LeftTable.table.clearContents()
         
     def _SetupOpenFileWidget(self, openfilewidget):
         @QtCore.Slot()
@@ -79,6 +71,13 @@ class GetInfoController:
             selectpythonwidget.python_path.setText(filename)
         selectpythonwidget.PressOpen.connect(OpenPython)
     
+    def _ClearTable(self, RightStack, LeftTable):
+        n_row = LeftTable.table.rowCount()
+        for row in reversed(range(n_row)):
+            widgetToRemove = RightStack.widget(row)
+            RightStack.removeWidget(widgetToRemove)
+        LeftTable.table.clearContents()
+        
     def _ShowData(self, FlagData, RightStack, LeftTable):
         flags, value_list, attr_list = FlagData
         # 用測試資料創建左邊list資料、添加右邊stack資料
@@ -108,7 +107,8 @@ class GetInfoController:
         @QtCore.Slot()
         def _press_edit():
             list_idx = stack.ParameterList.currentRow()
-            sel_items = stack.ParameterList.selectedItems()
+            current_item = stack.ParameterList.item(list_idx)
+            print()
             if list_idx == -1:
                 ret = QMessageBox.warning(
                     self.windows, 
@@ -120,7 +120,9 @@ class GetInfoController:
                 text, ok = QInputDialog.getText(stack, 
                                                 'Edit Parameter', 
                                                 'Enter a argument:',
-                                                text=str(sel_items[0].text()))
+                                                text=str(current_item.text()))
+                print(str(text))
+                # 排除空字串
                 if ok and text.strip() == '':
                     ret = QMessageBox.warning(
                         self.windows, 
@@ -130,9 +132,21 @@ class GetInfoController:
                     )
                     stack.PressEdit.emit()
                 elif ok:
-                    # TODO 排除重複的名稱，或當名稱重複跳出警告
-                    for item in sel_items:
-                        item.setText(str(text))
+                    # 重複名稱判斷
+                    item_list = self._GetListData(stack.ParameterList)
+                    print(item_list)
+                    print(str(text) in item_list)
+                    if str(text) in item_list or str(text) == str(current_item.text()):
+                        ret = QMessageBox.warning(
+                            self.windows, 
+                            'Parameter is duplicate!',
+                            'You must enter unique parameter.',
+                            QMessageBox.Ok
+                        )
+                        stack.PressEdit.emit()
+                    else:
+                        stack.ParameterList.takeItem(list_idx)
+                        stack.ParameterList.addItem(str(text))
         @QtCore.Slot()
         def _press_add():
             text, ok = QInputDialog.getText(stack, 
@@ -147,7 +161,18 @@ class GetInfoController:
                 )
                 stack.PressAdd.emit()
             elif ok:
-                stack.ParameterList.addItem(str(text))
+                # 重複名稱判斷
+                item_list = self._GetListData(stack.ParameterList)
+                if str(text) in item_list:
+                    ret = QMessageBox.warning(
+                        self.windows, 
+                        'Parameter is duplicate!',
+                        'You must enter unique parameter.',
+                        QMessageBox.Ok
+                    )
+                    stack.PressAdd.emit()
+                else:
+                    stack.ParameterList.addItem(str(text))
         @QtCore.Slot()
         def _press_delete():
             list_idx = stack.ParameterList.currentRow()
@@ -186,11 +211,11 @@ class GetInfoController:
                         QMessageBox.Ok
                     )
                 else:
-                    item = LeftTable.table.item(topRow, 0).text()
+                    item = LeftTable.table.item(topRow, 0)
                     text, ok = QInputDialog.getText(LeftTable, 
                                                     'Edit Flag', 
                                                     'Enter a flag:',
-                                                    text=str(item))
+                                                    text=str(item.text()))
                     if ok and text.strip() == '':
                         ret = QMessageBox.warning(
                             self.windows, 
@@ -200,9 +225,19 @@ class GetInfoController:
                         )
                         LeftTable.PressEdit.emit()
                     elif ok:
-                        # TODO 排除重複的名稱，或當名稱重複跳出警告
-                        LeftTable.table.setItem(topRow, 0, 
-                                                QTableWidgetItem(str(text)))
+                        # 重複名稱判斷
+                        flag_list = self._GetFlagData(LeftTable.table)
+                        if str(text) in flag_list or str(text) == str(item.text()):
+                            ret = QMessageBox.warning(
+                                self.windows, 
+                                'Flag is duplicate!',
+                                'You must enter unique flag.',
+                                QMessageBox.Ok
+                            )
+                            LeftTable.PressEdit.emit()
+                        else:
+                            LeftTable.table.setItem(topRow, 0, 
+                                                    QTableWidgetItem(str(text)))
                     
         @QtCore.Slot()
         def _press_add():
@@ -219,14 +254,25 @@ class GetInfoController:
                 )
                 LeftTable.PressAdd.emit()
             elif ok:
-                n_row = LeftTable.table.rowCount() + 1
-                LeftTable.table.setRowCount(n_row)
-                LeftTable.table.setItem(n_row-1, 0, 
-                                        QTableWidgetItem(str(text)))
-                right_widget = RightListWidget(RightStack)
-                # 賦予右邊stack按鈕的功能
-                self._SetupStackItem(right_widget)
-                RightStack.addWidget(right_widget)
+                # 重複名稱判斷
+                flag_list = self._GetFlagData(LeftTable.table)
+                if str(text) in flag_list:
+                    ret = QMessageBox.warning(
+                        self.windows, 
+                        'Flag is duplicate!',
+                        'You must enter unique flag.',
+                        QMessageBox.Ok
+                    )
+                    LeftTable.PressAdd.emit()
+                else:
+                    n_row = LeftTable.table.rowCount() + 1
+                    LeftTable.table.setRowCount(n_row)
+                    LeftTable.table.setItem(n_row-1, 0, 
+                                            QTableWidgetItem(str(text)))
+                    right_widget = RightListWidget(RightStack)
+                    # 賦予右邊stack按鈕的功能
+                    self._SetupStackItem(right_widget)
+                    RightStack.addWidget(right_widget)
         
         @QtCore.Slot()
         def _press_delete():
@@ -243,6 +289,21 @@ class GetInfoController:
         LeftTable.PressEdit.connect(_press_edit)
         LeftTable.PressAdd.connect(_press_add)
         LeftTable.PressDelete.connect(_press_delete)
+    
+    def _GetFlagData(self, table):
+        flag_list = []
+        n_row = table.rowCount()
+        for row in range(n_row):
+            item = table.item(row, 0).text()
+            flag_list.append(str(item))
+        return flag_list
+    
+    def _GetListData(self, ListWidget):
+        item_list = []
+        for row in range(ListWidget.count()):
+            item = ListWidget.item(row).text()
+            item_list.append(str(item))
+        return item_list
     
     def _CheckSelectCell(self, select_cell):
         if select_cell == []:
