@@ -9,13 +9,13 @@
 
 # here put the import lib
 import sys
-from Controller import GetInfoController
+from controller import MainController
 from PySide6 import QtWidgets
 from view.GetInfoWindow.SubWidget import LeftTableWidget
 
 if __name__ == "__main__":
     app = QtWidgets.QApplication(sys.argv)
-    ctr = GetInfoController()
+    ctr = MainController()
     # ctr = LeftTable()
     # ctr.show()
     app.exec_()

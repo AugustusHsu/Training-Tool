@@ -1,13 +1,12 @@
 # -*- encoding: utf-8 -*-
 '''
-@File    :   Controller.py
-@Time    :   2022/04/14 23:43:20
+@File    :   GetInfoController.py
+@Time    :   2022/05/06 09:55:49
 @Author  :   AugustusHsu
 @Contact :   jimhsu11@gmail.com
 '''
 
 # here put the import lib
-from view.MainWindow import MainWindow
 from view.GetInfoWindow.SubWidget import RightListWidget
 from PySide6.QtWidgets import (
     QFileDialog,
@@ -19,11 +18,10 @@ from PySide6 import QtCore
 from utils import GetABSLFlags, ParseDict
 
 class GetInfoController:
-    def __init__(self):
-        self.windows = MainWindow()
-        self._SetupGetInfoWidget(self.windows.getinfowidget)
+    def __init__(self, getinfowidget):
+        self.getinfowidget = getinfowidget
+        self._SetupGetInfoWidget(self.getinfowidget)
         
-        self.windows.show()
     
     def _SetupGetInfoWidget(self, getinfowidget):
         self._SetupOpenFileWidget(getinfowidget.openfilewidget)
@@ -44,7 +42,6 @@ class GetInfoController:
                            getinfowidget.LeftTable)
             
         getinfowidget.PressOK.connect(load_parameter)
-        getinfowidget.ClossBTN.connect(self._exit)
         
     def _SetupOpenFileWidget(self, openfilewidget):
         @QtCore.Slot()
@@ -111,7 +108,7 @@ class GetInfoController:
             print()
             if list_idx == -1:
                 ret = QMessageBox.warning(
-                    self.windows, 
+                    self.getinfowidget, 
                     'No Select Parameter!',
                     'You need to select one parameter to edit it.',
                     QMessageBox.Ok
@@ -125,7 +122,7 @@ class GetInfoController:
                 # 排除空字串
                 if ok and text.strip() == '':
                     ret = QMessageBox.warning(
-                        self.windows, 
+                        self.getinfowidget, 
                         'Parameter is Empty!',
                         'You must enter at least one string.',
                         QMessageBox.Ok
@@ -138,7 +135,7 @@ class GetInfoController:
                     print(str(text) in item_list)
                     if str(text) in item_list or str(text) == str(current_item.text()):
                         ret = QMessageBox.warning(
-                            self.windows, 
+                            self.getinfowidget, 
                             'Parameter is duplicate!',
                             'You must enter unique parameter.',
                             QMessageBox.Ok
@@ -154,7 +151,7 @@ class GetInfoController:
                                             'Enter a argument:')
             if ok and text.strip() == '':
                 ret = QMessageBox.warning(
-                    self.windows, 
+                    self.getinfowidget, 
                     'Parameter is Empty!',
                     'You must enter at least one string.',
                     QMessageBox.Ok
@@ -165,7 +162,7 @@ class GetInfoController:
                 item_list = self._GetListData(stack.ParameterList)
                 if str(text) in item_list:
                     ret = QMessageBox.warning(
-                        self.windows, 
+                        self.getinfowidget, 
                         'Parameter is duplicate!',
                         'You must enter unique parameter.',
                         QMessageBox.Ok
@@ -178,7 +175,7 @@ class GetInfoController:
             list_idx = stack.ParameterList.currentRow()
             if list_idx == -1:
                 ret = QMessageBox.warning(
-                    self.windows, 
+                    self.getinfowidget, 
                     'No Select Parameter!',
                     'You need to select one parameter to delete it.',
                     QMessageBox.Ok
@@ -205,7 +202,7 @@ class GetInfoController:
                     bottomRow = item.bottomRow()
                 if not bottomRow == topRow:
                     ret = QMessageBox.warning(
-                        self.windows, 
+                        self.getinfowidget, 
                         'Only Can Edit One Flag!',
                         'You need to select only one row to edit it.',
                         QMessageBox.Ok
@@ -218,7 +215,7 @@ class GetInfoController:
                                                     text=str(item.text()))
                     if ok and text.strip() == '':
                         ret = QMessageBox.warning(
-                            self.windows, 
+                            self.getinfowidget, 
                             'Flag is Empty!',
                             'You must enter at least one string.',
                             QMessageBox.Ok
@@ -229,7 +226,7 @@ class GetInfoController:
                         flag_list = self._GetFlagData(LeftTable.table)
                         if str(text) in flag_list or str(text) == str(item.text()):
                             ret = QMessageBox.warning(
-                                self.windows, 
+                                self.getinfowidget, 
                                 'Flag is duplicate!',
                                 'You must enter unique flag.',
                                 QMessageBox.Ok
@@ -247,7 +244,7 @@ class GetInfoController:
                                             'Enter a flag:')
             if ok and text.strip() == '':
                 ret = QMessageBox.warning(
-                    self.windows, 
+                    self.getinfowidget, 
                     'Flag is Empty!',
                     'You must enter at least one string.',
                     QMessageBox.Ok
@@ -258,7 +255,7 @@ class GetInfoController:
                 flag_list = self._GetFlagData(LeftTable.table)
                 if str(text) in flag_list:
                     ret = QMessageBox.warning(
-                        self.windows, 
+                        self.getinfowidget, 
                         'Flag is duplicate!',
                         'You must enter unique flag.',
                         QMessageBox.Ok
@@ -308,7 +305,7 @@ class GetInfoController:
     def _CheckSelectCell(self, select_cell):
         if select_cell == []:
             ret = QMessageBox.warning(
-                self.windows, 
+                self.getinfowidget, 
                 'No Select Flag!',
                 'You need to select one flag.',
                 QMessageBox.Ok
@@ -316,7 +313,7 @@ class GetInfoController:
             return False
         elif len(select_cell) > 1:
             ret = QMessageBox.warning(
-                self.windows, 
+                self.getinfowidget, 
                 'Only Can Edit One Flag!',
                 'You need to select only row.',
                 QMessageBox.Ok
@@ -324,8 +321,4 @@ class GetInfoController:
             return False
         else:
             return True
-
-    @QtCore.Slot()
-    def _exit(self):
-        self.windows.close()
 
