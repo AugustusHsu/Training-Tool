@@ -1,13 +1,13 @@
 # -*- encoding: utf-8 -*-
 '''
-@File    :   GetInfoController.py
+@File    :   GetInfoCTR.py
 @Time    :   2022/05/06 09:55:49
 @Author  :   AugustusHsu
 @Contact :   jimhsu11@gmail.com
 '''
 
 # here put the import lib
-from view.GetInfoWindow.SubWidget import RightListWidget
+from View.GetInfoWindow.SubWidget import RightListWidget
 from PySide6.QtWidgets import (
     QFileDialog,
     QInputDialog,

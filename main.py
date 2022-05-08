@@ -9,9 +9,9 @@
 
 # here put the import lib
 import sys
-from controller import MainController
+from Controller import MainController
 from PySide6 import QtWidgets
-from view.GetInfoWindow.SubWidget import LeftTableWidget
+from View.GetInfoWindow.SubWidget import LeftTableWidget
 
 if __name__ == "__main__":
     app = QtWidgets.QApplication(sys.argv)

@@ -13,24 +13,13 @@ from PySide6.QtWidgets import (
     QPushButton,
     QLabel,
     QLineEdit,
-    QStackedWidget,
     QListWidget,
-    QGridLayout,
     QHBoxLayout,
     QVBoxLayout,
-    QFormLayout,
-    QSpacerItem,
-    QSizePolicy,
-    QInputDialog,
     QTableWidget,
-    QTableWidgetItem,
     QHeaderView,
-    QAbstractItemView
 )
-from utils import GetABSLFlags, ParseDict
 from PySide6.QtCore import Signal
-from PySide6 import QtCore
-from PySide6 import QtGui
 
 class SelectPythonWidget(QWidget):
     PressOpen = Signal()

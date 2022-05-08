@@ -7,7 +7,7 @@
 '''
 
 # here put the import lib
-from view.GetInfoWindow.SubWidget import (
+from View.GetInfoWindow.SubWidget import (
     OpenFileWidget, 
     SelectPythonWidget,
     LeftTableWidget
@@ -25,6 +25,7 @@ from PySide6.QtCore import Signal
 class GetInfoWidget(QWidget):
     PressOK = Signal(str, str)
     ClossBTN = Signal()
+    GenBTN = Signal()
     def __init__(self, parent=None):
         super(GetInfoWidget, self).__init__(parent)
         self.openfilewidget = OpenFileWidget(self)
@@ -49,19 +50,22 @@ class GetInfoWidget(QWidget):
         
         self.LeftTable.table.cellClicked.connect(self.display)
         
-        self.clos_btn = QPushButton('close', self)
+        self.gen_btn = QPushButton('generate', self)
+        self.close_btn = QPushButton('close', self)
         # TODO 左下的checkbox要新增功能
-        self.checkbox = QCheckBox('show', self)
+        # self.checkbox = QCheckBox('show', self)
         BtnBox = QHBoxLayout()
-        BtnBox.addWidget(self.checkbox)
+        # BtnBox.addWidget(self.checkbox)
         BtnBox.addStretch(1)
-        BtnBox.addWidget(self.clos_btn)
+        BtnBox.addWidget(self.gen_btn)
+        BtnBox.addWidget(self.close_btn)
         
         f_layout.addLayout(BtnBox)
         
         self.setLayout(f_layout)
         self.openfilewidget.ok_btn.clicked.connect(self._press_ok)
-        self.clos_btn.clicked.connect(self._press_close)
+        self.gen_btn.clicked.connect(self._press_gen)
+        self.close_btn.clicked.connect(self._press_close)
         
     def _press_ok(self):
         self.PressOK.emit(self.selectpythonwidget.python_path.text(),
@@ -70,6 +74,9 @@ class GetInfoWidget(QWidget):
     def _press_close(self):
         self.ClossBTN.emit()
     
+    def _press_gen(self):
+        self.GenBTN.emit()
+        
     def display(self, index, column):
         # 設置當前可視選項的索引
         self.RightStack.setCurrentIndex(index)

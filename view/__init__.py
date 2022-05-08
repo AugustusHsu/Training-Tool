@@ -7,5 +7,5 @@
 '''
 
 # here put the import lib
-from view.MainWindow import MainWindow
+from View.MainWindow import MainWindows
 

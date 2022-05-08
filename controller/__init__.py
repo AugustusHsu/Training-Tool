@@ -7,5 +7,5 @@
 '''
 
 # here put the import lib
-from controller.GetInfoCTR import GetInfoController
-from controller.MainCTR import MainController
+from Controller.GetInfoCTR import GetInfoController
+from Controller.MainCTR import MainController
