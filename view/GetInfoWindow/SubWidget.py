@@ -22,7 +22,7 @@ from PySide6.QtWidgets import (
 from PySide6.QtCore import Signal
 
 class SelectPythonWidget(QWidget):
-    PressOpen = Signal()
+    SelectPython = Signal()
     def __init__(self, parent=None):
         super(SelectPythonWidget, self).__init__(parent)
         # 設置widget的高度
@@ -33,7 +33,7 @@ class SelectPythonWidget(QWidget):
         self.python_title = QLabel('Choose Python :')
         self.python_title.setFixedWidth(90)
         self.python_path = QLineEdit()
-        self.select_python_btn = QPushButton('select')
+        self.select_python_btn = QPushButton('Select')
         self.select_python_btn.setIcon(QIcon('./media/python_logo.svg'))
         
         HBox = QHBoxLayout()
@@ -46,7 +46,7 @@ class SelectPythonWidget(QWidget):
         self.select_python_btn.clicked.connect(self._press_open)
     
     def _press_open(self):
-        self.PressOpen.emit()
+        self.SelectPython.emit()
         
 class OpenFileWidget(QWidget):
     PressOpen = Signal()

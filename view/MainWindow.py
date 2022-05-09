@@ -15,6 +15,7 @@ from PySide6.QtWidgets import (
 )
 from PySide6 import QtCore
 from View.GetInfoWindow.Widget import GetInfoWidget
+from View.GetScriptWindow.Widget import GetSciptWidget
 
 class MainWindows(QMainWindow):
     def __init__(self):
@@ -24,10 +25,12 @@ class MainWindows(QMainWindow):
         self.setGeometry(200,300,640*1.5,360*1.5)
         self.setWindowTitle('StackedWidget 例子')
         self.getinfowidget = GetInfoWidget(self)
+        self.getscriptwidget = GetSciptWidget(self)
         self.tabWidget = QTabWidget(self)
         self._SetupUI()
         
     def _SetupUI(self):
         self.tabWidget.addTab(self.getinfowidget, "OpenFile")
+        self.tabWidget.addTab(self.getscriptwidget, "GetScript")
         
         self.setCentralWidget(self.tabWidget)

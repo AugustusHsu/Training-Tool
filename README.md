@@ -4,7 +4,7 @@
 
 - [x] Get `.py` File Path
 - [x] Get `python.exe` Path
-- [ ] Get `.py` File `py-absl` Parameter
+- [x] Get `.py` File `py-absl` Parameter
 - [x] Design a Widget like ListWidget
   - [x] Can Add or Delete Item
     - [x] `+` and `-` Buttom
