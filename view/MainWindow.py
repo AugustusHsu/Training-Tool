@@ -14,11 +14,11 @@ from PySide6.QtWidgets import (
     QTextEdit
 )
 from PySide6 import QtCore
-from view.GetInfoWindow.Widget import GetInfoWidget
+from View.GetInfoWindow.Widget import GetInfoWidget
 
-class MainWindow(QMainWindow):
+class MainWindows(QMainWindow):
     def __init__(self):
-        super(MainWindow, self).__init__()
+        super(MainWindows, self).__init__()
         # self._widget = QWidget()
         # 設置視窗的初始位置跟大小、應用程式的標題
         self.setGeometry(200,300,640*1.5,360*1.5)

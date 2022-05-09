@@ -1,14 +1,18 @@
 # -*- encoding: utf-8 -*-
 '''
-@File    :   Controller.py
-@Time    :   2022/04/14 23:43:20
+@File    :   GetInfoCTR.py
+@Time    :   2022/05/06 09:55:49
 @Author  :   AugustusHsu
 @Contact :   jimhsu11@gmail.com
 '''
 
 # here put the import lib
-from view.MainWindow import MainWindow
-from view.GetInfoWindow.SubWidget import RightListWidget
+import os
+from Models.TableOperator import (
+    GetFlagData,
+    GetListData
+)
+from View.GetInfoWindow.SubWidget import RightListWidget
 from PySide6.QtWidgets import (
     QFileDialog,
     QInputDialog,
@@ -16,27 +20,28 @@ from PySide6.QtWidgets import (
     QTableWidgetItem
 )
 from PySide6 import QtCore
-from utils import GetABSLFlags, ParseDict
+from Models.utils import GetABSLFlags, ParseDict
 
 class GetInfoController:
-    def __init__(self):
-        self.windows = MainWindow()
-        self._SetupGetInfoWidget(self.windows.getinfowidget)
+    def __init__(self, getinfowidget):
+        self.getinfowidget = getinfowidget
+        self._SetupGetInfoWidget(self.getinfowidget)
         
-        self.windows.show()
     
     def _SetupGetInfoWidget(self, getinfowidget):
         self._SetupOpenFileWidget(getinfowidget.openfilewidget)
         self._SetupSelectPythonWidget(getinfowidget.selectpythonwidget)
         @QtCore.Slot(str, str)
         def load_parameter(msg1, msg2):
-            # FIXME 預防空白的輸入
+            # FIXME 預防空白的輸入、確認檔案存在
             print('Path: ' + msg1)
             print('Path: ' + msg2)
             
             # DEBUG 預設的路徑與py檔來讀入FLAG_DICT
             FLAG_DICT = GetABSLFlags('python', 'test_file/test-absl.py')
-            # FLAG_DICT = GetABSLFlags(msg1, msg2)
+            # FLAG_DICT = GetABSLFlags('python', os.path.relpath(msg2))
+            # FIXME 不可執行時跳錯誤，加Log
+            # FLAG_DICT = GetABSLFlags(msg1, os.path.relpath(msg2))
             self._ClearTable(getinfowidget.RightStack, getinfowidget.LeftTable)
             flags, value_list, attr_list = ParseDict(FLAG_DICT)
             self._ShowData([flags, value_list, attr_list], 
@@ -44,7 +49,6 @@ class GetInfoController:
                            getinfowidget.LeftTable)
             
         getinfowidget.PressOK.connect(load_parameter)
-        getinfowidget.ClossBTN.connect(self._exit)
         
     def _SetupOpenFileWidget(self, openfilewidget):
         @QtCore.Slot()
@@ -64,12 +68,12 @@ class GetInfoController:
             filename, _ = QFileDialog.getOpenFileName(
                 selectpythonwidget,
                 "Open file", 
-                "\\home",
-                "Python Files (*.py);;All Files (*)"
+                "C:\\Users\\jimhsu\\Miniconda3\\envs\\GUI",
+                "Exe Files (*.exe);;All Files (*)"
                 # "All Files (*);;Python Files (*.py)"
             )
             selectpythonwidget.python_path.setText(filename)
-        selectpythonwidget.PressOpen.connect(OpenPython)
+        selectpythonwidget.SelectPython.connect(OpenPython)
     
     def _ClearTable(self, RightStack, LeftTable):
         n_row = LeftTable.table.rowCount()
@@ -111,7 +115,7 @@ class GetInfoController:
             print()
             if list_idx == -1:
                 ret = QMessageBox.warning(
-                    self.windows, 
+                    self.getinfowidget, 
                     'No Select Parameter!',
                     'You need to select one parameter to edit it.',
                     QMessageBox.Ok
@@ -125,7 +129,7 @@ class GetInfoController:
                 # 排除空字串
                 if ok and text.strip() == '':
                     ret = QMessageBox.warning(
-                        self.windows, 
+                        self.getinfowidget, 
                         'Parameter is Empty!',
                         'You must enter at least one string.',
                         QMessageBox.Ok
@@ -133,12 +137,12 @@ class GetInfoController:
                     stack.PressEdit.emit()
                 elif ok:
                     # 重複名稱判斷
-                    item_list = self._GetListData(stack.ParameterList)
+                    item_list = GetListData(stack.ParameterList)
                     print(item_list)
                     print(str(text) in item_list)
                     if str(text) in item_list or str(text) == str(current_item.text()):
                         ret = QMessageBox.warning(
-                            self.windows, 
+                            self.getinfowidget, 
                             'Parameter is duplicate!',
                             'You must enter unique parameter.',
                             QMessageBox.Ok
@@ -154,7 +158,7 @@ class GetInfoController:
                                             'Enter a argument:')
             if ok and text.strip() == '':
                 ret = QMessageBox.warning(
-                    self.windows, 
+                    self.getinfowidget, 
                     'Parameter is Empty!',
                     'You must enter at least one string.',
                     QMessageBox.Ok
@@ -162,10 +166,10 @@ class GetInfoController:
                 stack.PressAdd.emit()
             elif ok:
                 # 重複名稱判斷
-                item_list = self._GetListData(stack.ParameterList)
+                item_list = GetListData(stack.ParameterList)
                 if str(text) in item_list:
                     ret = QMessageBox.warning(
-                        self.windows, 
+                        self.getinfowidget, 
                         'Parameter is duplicate!',
                         'You must enter unique parameter.',
                         QMessageBox.Ok
@@ -178,7 +182,7 @@ class GetInfoController:
             list_idx = stack.ParameterList.currentRow()
             if list_idx == -1:
                 ret = QMessageBox.warning(
-                    self.windows, 
+                    self.getinfowidget, 
                     'No Select Parameter!',
                     'You need to select one parameter to delete it.',
                     QMessageBox.Ok
@@ -197,7 +201,7 @@ class GetInfoController:
     def _SetupLeftTable(self, LeftTable, RightStack):
         @QtCore.Slot()
         def _press_edit():
-            # TODO 目前只允許編輯flag
+            # TODO 目前只允許編輯flag，內容、類型等等尚無法
             select_cell = LeftTable.table.selectedRanges()
             if self._CheckSelectCell(select_cell):
                 for item in select_cell:
@@ -205,7 +209,7 @@ class GetInfoController:
                     bottomRow = item.bottomRow()
                 if not bottomRow == topRow:
                     ret = QMessageBox.warning(
-                        self.windows, 
+                        self.getinfowidget, 
                         'Only Can Edit One Flag!',
                         'You need to select only one row to edit it.',
                         QMessageBox.Ok
@@ -218,7 +222,7 @@ class GetInfoController:
                                                     text=str(item.text()))
                     if ok and text.strip() == '':
                         ret = QMessageBox.warning(
-                            self.windows, 
+                            self.getinfowidget, 
                             'Flag is Empty!',
                             'You must enter at least one string.',
                             QMessageBox.Ok
@@ -226,10 +230,10 @@ class GetInfoController:
                         LeftTable.PressEdit.emit()
                     elif ok:
                         # 重複名稱判斷
-                        flag_list = self._GetFlagData(LeftTable.table)
+                        flag_list = GetFlagData(LeftTable.table)
                         if str(text) in flag_list or str(text) == str(item.text()):
                             ret = QMessageBox.warning(
-                                self.windows, 
+                                self.getinfowidget, 
                                 'Flag is duplicate!',
                                 'You must enter unique flag.',
                                 QMessageBox.Ok
@@ -247,7 +251,7 @@ class GetInfoController:
                                             'Enter a flag:')
             if ok and text.strip() == '':
                 ret = QMessageBox.warning(
-                    self.windows, 
+                    self.getinfowidget, 
                     'Flag is Empty!',
                     'You must enter at least one string.',
                     QMessageBox.Ok
@@ -255,10 +259,10 @@ class GetInfoController:
                 LeftTable.PressAdd.emit()
             elif ok:
                 # 重複名稱判斷
-                flag_list = self._GetFlagData(LeftTable.table)
+                flag_list = GetFlagData(LeftTable.table)
                 if str(text) in flag_list:
                     ret = QMessageBox.warning(
-                        self.windows, 
+                        self.getinfowidget, 
                         'Flag is duplicate!',
                         'You must enter unique flag.',
                         QMessageBox.Ok
@@ -290,25 +294,10 @@ class GetInfoController:
         LeftTable.PressAdd.connect(_press_add)
         LeftTable.PressDelete.connect(_press_delete)
     
-    def _GetFlagData(self, table):
-        flag_list = []
-        n_row = table.rowCount()
-        for row in range(n_row):
-            item = table.item(row, 0).text()
-            flag_list.append(str(item))
-        return flag_list
-    
-    def _GetListData(self, ListWidget):
-        item_list = []
-        for row in range(ListWidget.count()):
-            item = ListWidget.item(row).text()
-            item_list.append(str(item))
-        return item_list
-    
     def _CheckSelectCell(self, select_cell):
         if select_cell == []:
             ret = QMessageBox.warning(
-                self.windows, 
+                self.getinfowidget, 
                 'No Select Flag!',
                 'You need to select one flag.',
                 QMessageBox.Ok
@@ -316,7 +305,7 @@ class GetInfoController:
             return False
         elif len(select_cell) > 1:
             ret = QMessageBox.warning(
-                self.windows, 
+                self.getinfowidget, 
                 'Only Can Edit One Flag!',
                 'You need to select only row.',
                 QMessageBox.Ok
@@ -324,8 +313,4 @@ class GetInfoController:
             return False
         else:
             return True
-
-    @QtCore.Slot()
-    def _exit(self):
-        self.windows.close()
 
