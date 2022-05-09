@@ -7,14 +7,19 @@
 '''
 
 # here put the import lib
+from Models.TableOperator import (
+    GetFlagData,
+    GetListData
+)
 from View import MainWindows
-from Controller import GetInfoController
+from Controller import GetInfoController, GetScriptController
 from PySide6 import QtCore
 
 class MainController:
     def __init__(self):
         self.windows = MainWindows()
         self.getinfoCTR = GetInfoController(self.windows.getinfowidget)
+        self.getscriptCTR = GetScriptController(self.windows.getscriptwidget)
         self.windows.getinfowidget.GenBTN.connect(self._gen)
         self.windows.getinfowidget.ClossBTN.connect(self._exit)
         self.windows.show()
@@ -25,5 +30,16 @@ class MainController:
         
     @QtCore.Slot()
     def _gen(self):
-        print('gen')
-        # TODO 取得所需的參數，跳轉下一個tab
+        RightStack = self.windows.getinfowidget.RightStack
+        LeftTable = self.windows.getinfowidget.LeftTable
+        
+        # for idx in range(LeftTable.table.rowCount()):
+        # 取得flag
+        flag_list = GetFlagData(LeftTable.table)
+        for idx, flag in enumerate(flag_list):
+            widgetToRemove = RightStack.widget(idx)
+            item_list = GetListData(widgetToRemove.ParameterList)
+        
+            print(flag, item_list)
+        # TODO 取得所需的參數，將參數輸入下一個tab並跳轉
+        self.windows.tabWidget.setCurrentIndex(self.windows.tabWidget.currentIndex()+1)

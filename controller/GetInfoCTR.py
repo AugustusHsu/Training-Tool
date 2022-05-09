@@ -7,6 +7,11 @@
 '''
 
 # here put the import lib
+import os
+from Models.TableOperator import (
+    GetFlagData,
+    GetListData
+)
 from View.GetInfoWindow.SubWidget import RightListWidget
 from PySide6.QtWidgets import (
     QFileDialog,
@@ -15,7 +20,7 @@ from PySide6.QtWidgets import (
     QTableWidgetItem
 )
 from PySide6 import QtCore
-from utils import GetABSLFlags, ParseDict
+from Models.utils import GetABSLFlags, ParseDict
 
 class GetInfoController:
     def __init__(self, getinfowidget):
@@ -28,13 +33,15 @@ class GetInfoController:
         self._SetupSelectPythonWidget(getinfowidget.selectpythonwidget)
         @QtCore.Slot(str, str)
         def load_parameter(msg1, msg2):
-            # FIXME 預防空白的輸入
+            # FIXME 預防空白的輸入、確認檔案存在
             print('Path: ' + msg1)
             print('Path: ' + msg2)
             
             # DEBUG 預設的路徑與py檔來讀入FLAG_DICT
             FLAG_DICT = GetABSLFlags('python', 'test_file/test-absl.py')
-            # FLAG_DICT = GetABSLFlags(msg1, msg2)
+            # FLAG_DICT = GetABSLFlags('python', os.path.relpath(msg2))
+            # FIXME 不可執行時跳錯誤，加Log
+            # FLAG_DICT = GetABSLFlags(msg1, os.path.relpath(msg2))
             self._ClearTable(getinfowidget.RightStack, getinfowidget.LeftTable)
             flags, value_list, attr_list = ParseDict(FLAG_DICT)
             self._ShowData([flags, value_list, attr_list], 
@@ -61,12 +68,12 @@ class GetInfoController:
             filename, _ = QFileDialog.getOpenFileName(
                 selectpythonwidget,
                 "Open file", 
-                "\\home",
-                "Python Files (*.py);;All Files (*)"
+                "C:\\Users\\jimhsu\\Miniconda3\\envs\\GUI",
+                "Exe Files (*.exe);;All Files (*)"
                 # "All Files (*);;Python Files (*.py)"
             )
             selectpythonwidget.python_path.setText(filename)
-        selectpythonwidget.PressOpen.connect(OpenPython)
+        selectpythonwidget.SelectPython.connect(OpenPython)
     
     def _ClearTable(self, RightStack, LeftTable):
         n_row = LeftTable.table.rowCount()
@@ -130,7 +137,7 @@ class GetInfoController:
                     stack.PressEdit.emit()
                 elif ok:
                     # 重複名稱判斷
-                    item_list = self._GetListData(stack.ParameterList)
+                    item_list = GetListData(stack.ParameterList)
                     print(item_list)
                     print(str(text) in item_list)
                     if str(text) in item_list or str(text) == str(current_item.text()):
@@ -159,7 +166,7 @@ class GetInfoController:
                 stack.PressAdd.emit()
             elif ok:
                 # 重複名稱判斷
-                item_list = self._GetListData(stack.ParameterList)
+                item_list = GetListData(stack.ParameterList)
                 if str(text) in item_list:
                     ret = QMessageBox.warning(
                         self.getinfowidget, 
@@ -194,7 +201,7 @@ class GetInfoController:
     def _SetupLeftTable(self, LeftTable, RightStack):
         @QtCore.Slot()
         def _press_edit():
-            # TODO 目前只允許編輯flag
+            # TODO 目前只允許編輯flag，內容、類型等等尚無法
             select_cell = LeftTable.table.selectedRanges()
             if self._CheckSelectCell(select_cell):
                 for item in select_cell:
@@ -223,7 +230,7 @@ class GetInfoController:
                         LeftTable.PressEdit.emit()
                     elif ok:
                         # 重複名稱判斷
-                        flag_list = self._GetFlagData(LeftTable.table)
+                        flag_list = GetFlagData(LeftTable.table)
                         if str(text) in flag_list or str(text) == str(item.text()):
                             ret = QMessageBox.warning(
                                 self.getinfowidget, 
@@ -252,7 +259,7 @@ class GetInfoController:
                 LeftTable.PressAdd.emit()
             elif ok:
                 # 重複名稱判斷
-                flag_list = self._GetFlagData(LeftTable.table)
+                flag_list = GetFlagData(LeftTable.table)
                 if str(text) in flag_list:
                     ret = QMessageBox.warning(
                         self.getinfowidget, 
@@ -286,21 +293,6 @@ class GetInfoController:
         LeftTable.PressEdit.connect(_press_edit)
         LeftTable.PressAdd.connect(_press_add)
         LeftTable.PressDelete.connect(_press_delete)
-    
-    def _GetFlagData(self, table):
-        flag_list = []
-        n_row = table.rowCount()
-        for row in range(n_row):
-            item = table.item(row, 0).text()
-            flag_list.append(str(item))
-        return flag_list
-    
-    def _GetListData(self, ListWidget):
-        item_list = []
-        for row in range(ListWidget.count()):
-            item = ListWidget.item(row).text()
-            item_list.append(str(item))
-        return item_list
     
     def _CheckSelectCell(self, select_cell):
         if select_cell == []:
