@@ -20,9 +20,23 @@ from PySide6.QtCore import Signal
 
 class GetSciptWidget(QWidget):
     PressOK = Signal(str, str)
+    ClossBTN = Signal()
     def __init__(self, parent=None):
         super(GetSciptWidget, self).__init__(parent)
         self.showpathflag = ShowPathFlagWidget(self)
+        self.close_btn = QPushButton('close', self)
+        self._setupUI()
+    
+    def _setupUI(self):
         VBox = QVBoxLayout()
         VBox.addWidget(self.showpathflag)
+        
+        BtnBox = QHBoxLayout()
+        BtnBox.addStretch(1)
+        BtnBox.addWidget(self.close_btn)
+        VBox.addLayout(BtnBox)
+        self.close_btn.clicked.connect(self._press_close)
         self.setLayout(VBox)
+        
+    def _press_close(self):
+        self.ClossBTN.emit()

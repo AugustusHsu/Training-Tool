@@ -7,6 +7,7 @@
 '''
 
 # here put the import lib
+import numpy as np
 from View.GetInfoWindow.SubWidget import (
     OpenFileWidget, 
     SelectPythonWidget,
@@ -25,7 +26,7 @@ from PySide6.QtCore import Signal
 class GetInfoWidget(QWidget):
     PressOK = Signal(str, str)
     ClossBTN = Signal()
-    GenBTN = Signal()
+    GenBTN = Signal(list)
     def __init__(self, parent=None):
         super(GetInfoWidget, self).__init__(parent)
         self.openfilewidget = OpenFileWidget(self)
@@ -64,7 +65,7 @@ class GetInfoWidget(QWidget):
         
         self.setLayout(f_layout)
         self.openfilewidget.ok_btn.clicked.connect(self._press_ok)
-        self.gen_btn.clicked.connect(self._press_gen)
+        # self.gen_btn.clicked.connect(self._press_gen)
         self.close_btn.clicked.connect(self._press_close)
         
     def _press_ok(self):
@@ -74,8 +75,8 @@ class GetInfoWidget(QWidget):
     def _press_close(self):
         self.ClossBTN.emit()
     
-    def _press_gen(self):
-        self.GenBTN.emit()
+    # def _press_gen(self):
+    #     self.GenBTN.emit()
         
     def display(self, index, column):
         # 設置當前可視選項的索引

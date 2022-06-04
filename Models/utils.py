@@ -9,7 +9,12 @@
 # here put the import lib
 from collections import OrderedDict
 import xmltodict
-        
+
+# TODO 當flag的名稱包含Path、Folder、Directory，確認他的value
+
+def CheckFlagPath():
+    pass
+
 def GetABSLFlags(python_exe, train_file):
     import subprocess
     r = subprocess.Popen('{} {} --helpxml'.format(python_exe, train_file), stdout=subprocess.PIPE)

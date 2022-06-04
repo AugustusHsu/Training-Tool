@@ -20,6 +20,7 @@ from PySide6.QtWidgets import (
     QHeaderView,
 )
 from PySide6.QtCore import Signal
+from PySide6 import QtCore
 
 class ShowPathFlagWidget(QWidget):
     SelectPython = Signal()
@@ -28,20 +29,30 @@ class ShowPathFlagWidget(QWidget):
         self._setupUI()
     
     def _setupUI(self):
-        self.PathFlag = []
         self.VBox = QVBoxLayout()
         
         # DEBUG 測試一個PathFlag
         HBox = QHBoxLayout()
         PathFlagName = QLabel("Test Path:")
         PathFlagName.setFixedWidth(100)
-        PathFlagValue = QLineEdit()
+        PathFlagValue = QLineEdit('test')
         EditBox = QPushButton('Edit')
         HBox.addWidget(PathFlagName)
         HBox.addWidget(PathFlagValue)
         HBox.addWidget(EditBox)
-        self.PathFlag.append([PathFlagName, PathFlagValue, EditBox])
         
         self.VBox.addLayout(HBox)
         self.setLayout(self.VBox)
         
+    @QtCore.Slot(str, str)
+    def PathFlagGenerate(self, FlagName, FlagValue):
+        HBox = QHBoxLayout()
+        PathFlagName = QLabel(FlagName)
+        PathFlagName.setFixedWidth(100)
+        PathFlagValue = QLineEdit('QLineEdit')
+        EditBox = QPushButton('Edit')
+        HBox.addWidget(PathFlagName)
+        HBox.addWidget(PathFlagValue)
+        HBox.addWidget(EditBox)
+        
+        self.VBox.addLayout(HBox)

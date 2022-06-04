@@ -10,7 +10,8 @@
 import os
 from Models.TableOperator import (
     GetFlagData,
-    GetListData
+    GetListData,
+    GetTableData
 )
 from View.GetInfoWindow.SubWidget import RightListWidget
 from PySide6.QtWidgets import (
@@ -26,7 +27,7 @@ class GetInfoController:
     def __init__(self, getinfowidget):
         self.getinfowidget = getinfowidget
         self._SetupGetInfoWidget(self.getinfowidget)
-        
+        self._SetupGenBTN(self.getinfowidget)
     
     def _SetupGetInfoWidget(self, getinfowidget):
         self._SetupOpenFileWidget(getinfowidget.openfilewidget)
@@ -314,3 +315,9 @@ class GetInfoController:
         else:
             return True
 
+    # TODO 按下按鈕取得資料
+    def _SetupGenBTN(self, getinfowidget):
+        def _press_gen():
+            ABSLData = GetTableData(getinfowidget.LeftTable.table)
+            getinfowidget.GenBTN.emit([ABSLData])
+        getinfowidget.gen_btn.clicked.connect(_press_gen)

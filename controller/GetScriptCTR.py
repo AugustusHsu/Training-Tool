@@ -7,6 +7,7 @@
 '''
 
 # here put the import lib
+import numpy as np
 from PySide6.QtWidgets import (
     QWidget, 
     QPushButton,
@@ -18,15 +19,19 @@ from PySide6.QtWidgets import (
     QTableWidget,
     QHeaderView,
 )
+from PySide6 import QtCore
+from PySide6.QtCore import Signal
 
 class GetScriptController:
     def __init__(self, getscriptwidget):
         self._SetupShowPathFlag(getscriptwidget.showpathflag)
     
     # TODO 取得table的參數
+    @QtCore.Slot(list)
+    def GetTableData(self, Arr):
+        print(np.array(Arr))
     
     def _SetupShowPathFlag(self, showpathflag):
-        self.PathFlag = []
         
         # TODO 用for迴圈創建和路徑相關的物件
         HBox = QHBoxLayout()
@@ -34,7 +39,6 @@ class GetScriptController:
         PathFlagName.setFixedWidth(100)
         PathFlagValue = QLineEdit()
         EditBox = QPushButton('Edit')
-        showpathflag.PathFlag.append([PathFlagName, PathFlagValue, EditBox])
         HBox.addWidget(PathFlagName)
         HBox.addWidget(PathFlagValue)
         HBox.addWidget(EditBox)
