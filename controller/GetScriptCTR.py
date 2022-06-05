@@ -18,32 +18,43 @@ from PySide6.QtWidgets import (
     QVBoxLayout,
     QTableWidget,
     QHeaderView,
+    QFileDialog
 )
 from PySide6 import QtCore
 from PySide6.QtCore import Signal
 
 class GetScriptController:
     def __init__(self, getscriptwidget):
+        self.getscriptwidget = getscriptwidget
         self._SetupShowPathFlag(getscriptwidget.showpathflag)
     
-    # TODO 取得table的參數
-    @QtCore.Slot(list)
-    def GetTableData(self, Arr):
-        print(np.array(Arr))
-    
-    def _SetupShowPathFlag(self, showpathflag):
-        
-        # TODO 用for迴圈創建和路徑相關的物件
+    def PathFlagGenerate(self, FlagName, FlagValue):
         HBox = QHBoxLayout()
-        PathFlagName = QLabel("Test Path:")
+        PathFlagName = QLabel(FlagName + ' :')
         PathFlagName.setFixedWidth(100)
-        PathFlagValue = QLineEdit()
-        EditBox = QPushButton('Edit')
+        PathFlagValue = QLineEdit(FlagValue)
+        EditBTN = QPushButton('...')
+        EditBTN.setFixedSize(30, 30)
+        
+        @QtCore.Slot()
+        def OpenPython():
+            filename, _ = QFileDialog.getOpenFileName(
+                self.getscriptwidget.showpathflag,
+                "Open file", 
+                FlagValue,
+                "Exe Files (*.exe);;All Files (*)"
+                # "All Files (*);;Python Files (*.py)"
+            )
+        EditBTN.clicked.connect(OpenPython)
+        
         HBox.addWidget(PathFlagName)
         HBox.addWidget(PathFlagValue)
-        HBox.addWidget(EditBox)
+        HBox.addWidget(EditBTN)
         
-        showpathflag.VBox.addLayout(HBox)
+        self.getscriptwidget.showpathflag.VBox.addLayout(HBox)
+    
+    def _SetupShowPathFlag(self, showpathflag):
+        pass
     
     def _addPathFlag(self, flag_data):
         pass        

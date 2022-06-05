@@ -7,11 +7,17 @@
 '''
 
 # here put the import lib
+from pydoc import pathdirs
+import numpy as np
 from Models.TableOperator import (
     GetTableData,
     GetFlagData,
     GetListData
 )
+from PySide6.QtWidgets import (
+    QVBoxLayout, 
+)
+from Models.utils import CheckPathFlag
 from View import MainWindows
 from Controller import GetInfoController, GetScriptController
 from PySide6 import QtCore
@@ -22,8 +28,8 @@ class MainController:
         self.windows = MainWindows()
         self.getinfoCTR = GetInfoController(self.windows.getinfowidget)
         self.getscriptCTR = GetScriptController(self.windows.getscriptwidget)
-        # self.windows.getinfowidget.GenBTN.connect(self._gen)
-        self.windows.getinfowidget.GenBTN.connect(self.getscriptCTR.GetTableData)
+        self.windows.getinfowidget.GenBTN.connect(self._gen)
+        # self.windows.getinfowidget.GenBTN.connect(self.getscriptCTR.GetTableData)
         # getinfowidget.PressOK.connect(load_parameter)
         
         self.windows.getinfowidget.ClossBTN.connect(self._exit)
@@ -36,23 +42,33 @@ class MainController:
         
     @QtCore.Slot()
     def _gen(self):
-        GenFlag = Signal()
+        # FIXME 清除第二個tab的資料內容
+        self.windows.getscriptwidget.showpathflag.ClearLayout()
+        # self.windows.getscriptwidget
         
         RightStack = self.windows.getinfowidget.RightStack
         LeftTable = self.windows.getinfowidget.LeftTable
         
-        # for idx in range(LeftTable.table.rowCount()):
         # 取得table內的資料
         ABSLData = GetTableData(LeftTable.table)
-        print(ABSLData)
-        # 取得對應的list資料
-        item_list = []
-        # 取得flag
-        flag_list = GetFlagData(LeftTable.table)
-        for idx, flag in enumerate(flag_list):
-            widgetToRemove = RightStack.widget(idx)
-            item_list = GetListData(widgetToRemove.ParameterList)
+        ABSLData = np.array(ABSLData)
         
-            print(flag, item_list)
-        # TODO 取得所需的參數，將參數輸入下一個tab並跳轉
+        # 取得對應的list資料
+        ABSLValue = []
+        for idx in range(ABSLData.shape[0]):
+            widgetToRemove = RightStack.widget(idx)
+            value = GetListData(widgetToRemove.ParameterList)
+            ABSLValue.append(value)
+        ABSLValue = np.array(ABSLValue)
+        
+        path_idx, other_idx = CheckPathFlag(ABSLData, ABSLValue)
+        
+        # 包含path的flag
+        for idx in path_idx:
+            FlagName = ABSLData[idx][0]
+            FlagValue = ABSLValue[idx][0]
+            print(FlagName, FlagValue)
+            self.getscriptCTR.PathFlagGenerate(FlagName, FlagValue)
+        
+        # 跳轉下一個tab
         self.windows.tabWidget.setCurrentIndex(self.windows.tabWidget.currentIndex()+1)

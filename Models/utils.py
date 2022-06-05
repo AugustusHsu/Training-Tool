@@ -7,13 +7,25 @@
 '''
 
 # here put the import lib
+import re
 from collections import OrderedDict
 import xmltodict
 
-# TODO 當flag的名稱包含Path、Folder、Directory，確認他的value
-
-def CheckFlagPath():
-    pass
+def CheckPathFlag(ABSLData, ABSLValue):
+    # flag的名稱包含['Path', 'Folder', 'Directory']
+    # 當value的個數只能有1個
+    path_idx = []
+    other_idx = []
+    for idx, data in enumerate(ABSLData):
+        if ('Path'.casefold() in data[0].casefold() or \
+            'Folder'.casefold() in data[0].casefold() or \
+            'Directory'.casefold() in data[0].casefold()) and \
+            len(ABSLValue[idx]) == 1:
+            path_idx.append(idx)
+            print(ABSLValue[idx])
+        else:
+            other_idx.append(idx)
+    return path_idx, other_idx
 
 def GetABSLFlags(python_exe, train_file):
     import subprocess

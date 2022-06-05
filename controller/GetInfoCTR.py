@@ -27,7 +27,6 @@ class GetInfoController:
     def __init__(self, getinfowidget):
         self.getinfowidget = getinfowidget
         self._SetupGetInfoWidget(self.getinfowidget)
-        self._SetupGenBTN(self.getinfowidget)
     
     def _SetupGetInfoWidget(self, getinfowidget):
         self._SetupOpenFileWidget(getinfowidget.openfilewidget)
@@ -314,10 +313,3 @@ class GetInfoController:
             return False
         else:
             return True
-
-    # TODO 按下按鈕取得資料
-    def _SetupGenBTN(self, getinfowidget):
-        def _press_gen():
-            ABSLData = GetTableData(getinfowidget.LeftTable.table)
-            getinfowidget.GenBTN.emit([ABSLData])
-        getinfowidget.gen_btn.clicked.connect(_press_gen)
