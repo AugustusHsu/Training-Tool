@@ -7,7 +7,7 @@
 '''
 
 # here put the import lib
-from View.GetScriptWindow.SubWidget import ShowPathFlagWidget
+from View.GetScriptWindow.SubWidget import ShowPathFlagWidget, ShowParameterWidget
 from PySide6.QtWidgets import (
     QWidget, 
     QVBoxLayout,
@@ -24,12 +24,15 @@ class GetSciptWidget(QWidget):
     def __init__(self, parent=None):
         super(GetSciptWidget, self).__init__(parent)
         self.showpathflag = ShowPathFlagWidget(self)
+        self.showparameter = ShowParameterWidget(self)
+        # TODO 腳本生成的按鈕與實現對應的功能
         self.close_btn = QPushButton('close', self)
         self._setupUI()
     
     def _setupUI(self):
         VBox = QVBoxLayout()
         VBox.addWidget(self.showpathflag)
+        VBox.addWidget(self.showparameter)
         
         BtnBox = QHBoxLayout()
         BtnBox.addStretch(1)

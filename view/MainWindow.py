@@ -30,6 +30,7 @@ class MainWindows(QMainWindow):
         self._SetupUI()
         
     def _SetupUI(self):
+        # TODO 新增menu後續的widget可以接續使用
         self.tabWidget.addTab(self.getinfowidget, "OpenFile")
         self.tabWidget.addTab(self.getscriptwidget, "GetScript")
         

@@ -7,6 +7,8 @@
 '''
 
 # here put the import lib
+import enum
+import os
 from pydoc import pathdirs
 import numpy as np
 from Models.TableOperator import (
@@ -16,6 +18,7 @@ from Models.TableOperator import (
 )
 from PySide6.QtWidgets import (
     QVBoxLayout, 
+    QMessageBox,
 )
 from Models.utils import CheckPathFlag
 from View import MainWindows
@@ -42,7 +45,7 @@ class MainController:
         
     @QtCore.Slot()
     def _gen(self):
-        # FIXME 清除第二個tab的資料內容
+        # 清除第二個tab的資料內容
         self.windows.getscriptwidget.showpathflag.ClearLayout()
         # self.windows.getscriptwidget
         
@@ -51,6 +54,16 @@ class MainController:
         
         # 取得table內的資料
         ABSLData = GetTableData(LeftTable.table)
+        # 參數全空白時，跳出警告視
+        print(ABSLData)
+        if ABSLData == []:
+            ret = QMessageBox.warning(
+                self.windows.getinfowidget, 
+                'Parameter is Empty!',
+                'You must load at least one parameter to use this program.',
+                QMessageBox.Ok
+            )
+            return
         ABSLData = np.array(ABSLData)
         
         # 取得對應的list資料
@@ -61,14 +74,26 @@ class MainController:
             ABSLValue.append(value)
         ABSLValue = np.array(ABSLValue)
         
+        # 確保ABSLValue的名稱包含['Path', 'Folder', 'Directory']
+        # ABSLValue的個數只能有1個
         path_idx, other_idx = CheckPathFlag(ABSLData, ABSLValue)
         
         # 包含path的flag
-        for idx in path_idx:
+        for idx, p_idx in enumerate(path_idx):
+            FlagName = ABSLData[p_idx][0]
+            FlagValue = ABSLValue[p_idx][0]
+            # 預防讀入的值不是路徑
+            if not os.path.exists(FlagValue):
+                other_idx.append(p_idx)
+                continue
+            self.getscriptCTR.PathFlagGenerate(FlagName, FlagValue)
+            
+        # 下方的表格數據
+        for idx in other_idx:
             FlagName = ABSLData[idx][0]
             FlagValue = ABSLValue[idx][0]
-            print(FlagName, FlagValue)
-            self.getscriptCTR.PathFlagGenerate(FlagName, FlagValue)
+        self.getscriptCTR.ShowParameter(ABSLData[other_idx], 
+                                        ABSLValue[other_idx])
         
         # 跳轉下一個tab
         self.windows.tabWidget.setCurrentIndex(self.windows.tabWidget.currentIndex()+1)

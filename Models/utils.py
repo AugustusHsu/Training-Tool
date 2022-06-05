@@ -12,8 +12,8 @@ from collections import OrderedDict
 import xmltodict
 
 def CheckPathFlag(ABSLData, ABSLValue):
-    # flag的名稱包含['Path', 'Folder', 'Directory']
-    # 當value的個數只能有1個
+    # 確保ABSLValue的名稱包含['Path', 'Folder', 'Directory']
+    # ABSLValue的個數只能有1個
     path_idx = []
     other_idx = []
     for idx, data in enumerate(ABSLData):
@@ -22,7 +22,6 @@ def CheckPathFlag(ABSLData, ABSLValue):
             'Directory'.casefold() in data[0].casefold()) and \
             len(ABSLValue[idx]) == 1:
             path_idx.append(idx)
-            print(ABSLValue[idx])
         else:
             other_idx.append(idx)
     return path_idx, other_idx

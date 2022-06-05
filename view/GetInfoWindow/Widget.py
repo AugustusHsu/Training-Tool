@@ -53,10 +53,13 @@ class GetInfoWidget(QWidget):
         
         self.gen_btn = QPushButton('generate', self)
         self.close_btn = QPushButton('close', self)
-        # TODO 左下的checkbox要新增功能
+        # TODO 可以儲存編輯好的FLAG，還有可以讀取
+        self.save_btn = QPushButton('save', self)
+        self.load_btn = QPushButton('load', self)
         # self.checkbox = QCheckBox('show', self)
         BtnBox = QHBoxLayout()
-        # BtnBox.addWidget(self.checkbox)
+        BtnBox.addWidget(self.save_btn)
+        BtnBox.addWidget(self.load_btn)
         BtnBox.addStretch(1)
         BtnBox.addWidget(self.gen_btn)
         BtnBox.addWidget(self.close_btn)

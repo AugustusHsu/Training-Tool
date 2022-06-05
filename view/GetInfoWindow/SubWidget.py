@@ -18,6 +18,7 @@ from PySide6.QtWidgets import (
     QVBoxLayout,
     QTableWidget,
     QHeaderView,
+    QAbstractItemView,
 )
 from PySide6.QtCore import Signal
 
@@ -135,6 +136,10 @@ class LeftTableWidget(QWidget):
         # column的文字
         self.table.setHorizontalHeaderLabels(['flag', 'file', 'type', 
                                               'enum_value', 'meaning'])
+        # column字體加粗
+        font = self.table.horizontalHeader().font()
+        font.setBold(True)
+        self.table.horizontalHeader().setFont(font)
         # 設定最後一個column延伸至最大
         # self.table.horizontalHeader().setStretchLastSection(True)
         # 沿水平方向擴展到符合item內容
@@ -142,6 +147,8 @@ class LeftTableWidget(QWidget):
         # 沿水平方向擴展到適當尺寸
         self.table.horizontalHeader().setSectionResizeMode(self.table.columnCount()-1, 
                                                            QHeaderView.Stretch)
+        # 選中為選中整行
+        self.table.setSelectionBehavior(QAbstractItemView.SelectRows)
         VBox.addWidget(self.table)
         
         self.edit_btn = QPushButton(' ', self)

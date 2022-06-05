@@ -12,8 +12,8 @@ from absl import flags
 from absl_otherfile import test
 
 FLAGS = flags.FLAGS
-flags.DEFINE_string('DatasetFolder', 'E:\M939_Document\Test\\test_multiprocess\csp_DIP', 'DatasetPath.')
-flags.DEFINE_string('DataPath', 'E:\M939_Document\Test\\test_multiprocess\csp_DIP', 'DataPath.')
+flags.DEFINE_string('DatasetFolder', 'C:\\', 'DatasetPath.')
+flags.DEFINE_string('DataPath', 'C:\\', 'DataPath.')
 flags.DEFINE_string('name', 'Jane Random', 'Your name.')
 flags.DEFINE_string('name2', None, 'Your name.')
 flags.DEFINE_boolean('debug2', True, 'Produces debugging output.')
