@@ -58,7 +58,6 @@ class GetScriptController:
         self.getscriptwidget.showpathflag.BoxList.append(HBox)
         
         DownBTN.clicked.connect(lambda: self._press_down(HBox))
-        print(self.getscriptwidget.showpathflag.BoxList.index(HBox))
         
         self.getscriptwidget.showpathflag.VBox.addLayout(HBox)
     
@@ -83,11 +82,9 @@ class GetScriptController:
         layout.deleteLater()
     
     def ShowParameter(self, FlagName, FlagValue):
-        print(FlagName[:,0], FlagValue)
-        print(FlagName.shape, FlagValue.shape)
         ParamTable = self.getscriptwidget.showparameter.table
         
-        # 表格有5個column
+        # 表格有幾個column
         ColumnCount = FlagName.shape[0]
         ParamTable.setColumnCount(ColumnCount)
         # column的內容、字體加粗
@@ -95,13 +92,9 @@ class GetScriptController:
         font = ParamTable.horizontalHeader().font()
         font.setBold(True)
         ParamTable.horizontalHeader().setFont(font)
-        # 沿水平方向擴展到符合item內容
-        ParamTable.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeToContents)
         # 沿水平方向擴展到適當尺寸
-        ParamTable.horizontalHeader().setSectionResizeMode(ParamTable.columnCount(), 
+        ParamTable.horizontalHeader().setSectionResizeMode(ParamTable.columnCount()-1, 
                                                                QHeaderView.Stretch)
-        # 選中為選中整行
-        ParamTable.setSelectionBehavior(QAbstractItemView.SelectRows)
         
         RowCount = 1
         for values in FlagValue:
@@ -135,3 +128,5 @@ class GetScriptController:
             # ParamTable.setItem(idx, 0, QTableWidgetItem(str(flags[idx])))
             for idj, item in enumerate(row):
                 ParamTable.setItem(idx, idj, QTableWidgetItem(str(item)))
+                
+            

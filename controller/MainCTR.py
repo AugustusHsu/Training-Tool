@@ -47,6 +47,7 @@ class MainController:
     def _gen(self):
         # 清除第二個tab的資料內容
         self.windows.getscriptwidget.showpathflag.ClearLayout()
+        self.windows.getscriptwidget.showparameter.ClearTable()
         # self.windows.getscriptwidget
         
         RightStack = self.windows.getinfowidget.RightStack
@@ -55,7 +56,6 @@ class MainController:
         # 取得table內的資料
         ABSLData = GetTableData(LeftTable.table)
         # 參數全空白時，跳出警告視
-        print(ABSLData)
         if ABSLData == []:
             ret = QMessageBox.warning(
                 self.windows.getinfowidget, 
