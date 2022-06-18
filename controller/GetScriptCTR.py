@@ -120,8 +120,9 @@ class GetScriptController:
             for item in ColumnList:
                 tmplist.append(item[idx])
             RowList.append(tmplist)
-        for row in RowList:
-            print(row)
+            
+        # for row in RowList:
+        #     print(row)
         
         # Load Data
         for idx, row in enumerate(RowList):

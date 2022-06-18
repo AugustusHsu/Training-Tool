@@ -27,6 +27,8 @@ class GetInfoWidget(QWidget):
     PressOK = Signal(str, str)
     ClossBTN = Signal()
     GenBTN = Signal()
+    SaveBTN = Signal()
+    LoadBTN = Signal()
     def __init__(self, parent=None):
         super(GetInfoWidget, self).__init__(parent)
         self.openfilewidget = OpenFileWidget(self)
@@ -67,6 +69,8 @@ class GetInfoWidget(QWidget):
         f_layout.addLayout(BtnBox)
         
         self.setLayout(f_layout)
+        self.save_btn.clicked.connect(self._press_save)
+        self.load_btn.clicked.connect(self._press_load)
         self.openfilewidget.ok_btn.clicked.connect(self._press_ok)
         self.gen_btn.clicked.connect(self._press_gen)
         self.close_btn.clicked.connect(self._press_close)
@@ -80,6 +84,13 @@ class GetInfoWidget(QWidget):
     
     def _press_gen(self):
         self.GenBTN.emit()
+        
+    def _press_save(self):
+        print('save')
+        self.SaveBTN.emit()
+        
+    def _press_load(self):
+        self.LoadBTN.emit()
         
     def display(self, index, column):
         # 設置當前可視選項的索引

@@ -49,6 +49,7 @@ class GetInfoController:
                            getinfowidget.LeftTable)
             
         getinfowidget.PressOK.connect(load_parameter)
+        self._SaveParameter(getinfowidget)
         
     def _SetupOpenFileWidget(self, openfilewidget):
         @QtCore.Slot()
@@ -193,7 +194,6 @@ class GetInfoController:
                     for item in sel_items:
                         idx = stack.ParameterList.row(item)
                         stack.ParameterList.takeItem(idx)
-        
         stack.PressEdit.connect(_press_edit)
         stack.PressAdd.connect(_press_add)
         stack.PressDelete.connect(_press_delete)
@@ -313,3 +313,23 @@ class GetInfoController:
             return False
         else:
             return True
+
+    def _SaveParameter(self, getinfowidget):
+        LeftTable = getinfowidget.LeftTable.table
+        RightStack = getinfowidget.RightStack
+        @QtCore.Slot()
+        def _press_save():
+            FlagData = GetTableData(LeftTable)
+            # TODO FlagData空白跳出警告
+            
+            # 取得對應的list資料
+            ABSLValue = []
+            for idx in range(len(FlagData)):
+                widgetToRemove = RightStack.widget(idx)
+                # TODO value空白跳出警告
+                value = GetListData(widgetToRemove.ParameterList)
+                ABSLValue.append(value)
+            print(FlagData)
+            print()
+            print(ABSLValue)
+        getinfowidget.SaveBTN.connect(_press_save)
