@@ -86,7 +86,6 @@ class GetInfoWidget(QWidget):
         self.GenBTN.emit()
         
     def _press_save(self):
-        print('save')
         self.SaveBTN.emit()
         
     def _press_load(self):

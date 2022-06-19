@@ -45,6 +45,7 @@ class MainController:
         
     @QtCore.Slot()
     def _gen(self):
+        # TODO 需要確保前一個tab的.py檔有設定好 嗎?
         # 清除第二個tab的資料內容
         self.windows.getscriptwidget.showpathflag.ClearLayout()
         self.windows.getscriptwidget.showparameter.ClearTable()

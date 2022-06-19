@@ -8,6 +8,8 @@
 
 # here put the import lib
 import os
+import json
+from datetime import datetime
 from Models.TableOperator import (
     GetFlagData,
     GetListData,
@@ -21,7 +23,7 @@ from PySide6.QtWidgets import (
     QTableWidgetItem
 )
 from PySide6 import QtCore
-from Models.utils import GetABSLFlags, ParseDict
+from Models.utils import GetABSLFlags, ParseDict, ParseJsonParameter
 
 class GetInfoController:
     def __init__(self, getinfowidget):
@@ -38,25 +40,29 @@ class GetInfoController:
             print('Path: ' + msg2)
             
             # DEBUG 預設的路徑與py檔來讀入FLAG_DICT
-            FLAG_DICT = GetABSLFlags('python', 'test_file/test-absl.py')
+            TestABSLFile = 'test_file/test-absl.py'
+            FLAG_DICT = GetABSLFlags('python', TestABSLFile)
             # FLAG_DICT = GetABSLFlags('python', os.path.relpath(msg2))
+            getinfowidget.openfilewidget.pyfile_path.setText(os.path.abspath(TestABSLFile))
             # FIXME 不可執行時跳錯誤，加Log
             # FLAG_DICT = GetABSLFlags(msg1, os.path.relpath(msg2))
-            self._ClearTable(getinfowidget.RightStack, getinfowidget.LeftTable)
+            self._ClearTable(getinfowidget.RightStack, getinfowidget.LeftTable.table)
             flags, value_list, attr_list = ParseDict(FLAG_DICT)
             self._ShowData([flags, value_list, attr_list], 
                            getinfowidget.RightStack,
                            getinfowidget.LeftTable)
             
+        self._SetupLeftTable(getinfowidget.LeftTable, getinfowidget.RightStack)
         getinfowidget.PressOK.connect(load_parameter)
         self._SaveParameter(getinfowidget)
+        self._LoadParameter(getinfowidget)
         
     def _SetupOpenFileWidget(self, openfilewidget):
         @QtCore.Slot()
         def OpenPyFile():
             filename, _ = QFileDialog.getOpenFileName(
                 openfilewidget,
-                "Open file", 
+                "Open .py File", 
                 "./",
                 "Python Files (*.py);;All Files (*)"
             )
@@ -68,7 +74,8 @@ class GetInfoController:
         def OpenPython():
             filename, _ = QFileDialog.getOpenFileName(
                 selectpythonwidget,
-                "Open file", 
+                "Select Python", 
+                # TODO 預設路徑需要更改
                 "C:\\Users\\jimhsu\\Miniconda3\\envs\\GUI",
                 "Exe Files (*.exe);;All Files (*)"
                 # "All Files (*);;Python Files (*.py)"
@@ -77,11 +84,11 @@ class GetInfoController:
         selectpythonwidget.SelectPython.connect(OpenPython)
     
     def _ClearTable(self, RightStack, LeftTable):
-        n_row = LeftTable.table.rowCount()
+        n_row = LeftTable.rowCount()
         for row in reversed(range(n_row)):
             widgetToRemove = RightStack.widget(row)
             RightStack.removeWidget(widgetToRemove)
-        LeftTable.table.clearContents()
+        LeftTable.clearContents()
         
     def _ShowData(self, FlagData, RightStack, LeftTable):
         flags, value_list, attr_list = FlagData
@@ -94,7 +101,6 @@ class GetInfoController:
             for idj, item in enumerate(row):
                 LeftTable.table.setItem(idx, idj+1, QTableWidgetItem(str(item)))
         self._SetupRightList(RightStack, value_list)
-        self._SetupLeftTable(LeftTable, RightStack)
     
     def _SetupRightList(self, RightStack, value_list):
         def stackUI(rightitem):
@@ -242,7 +248,6 @@ class GetInfoController:
                         else:
                             LeftTable.table.setItem(topRow, 0, 
                                                     QTableWidgetItem(str(text)))
-                    
         @QtCore.Slot()
         def _press_add():
             # 需要用到Add按鈕情況應該沒有(?
@@ -277,7 +282,6 @@ class GetInfoController:
                     # 賦予右邊stack按鈕的功能
                     self._SetupStackItem(right_widget)
                     RightStack.addWidget(right_widget)
-        
         @QtCore.Slot()
         def _press_delete():
             select_cell = LeftTable.table.selectedRanges()
@@ -285,10 +289,16 @@ class GetInfoController:
                 for item in select_cell:
                     topRow = item.topRow()
                     bottomRow = item.bottomRow()
-                for row in range(topRow-1, bottomRow):
-                    LeftTable.table.removeRow(row)
-                    widgetToRemove = RightStack.widget(row)
+                # 不可跳著刪除，但可以一個範圍內刪除
+                if topRow == bottomRow:
+                    LeftTable.table.removeRow(topRow)
+                    widgetToRemove = RightStack.widget(topRow)
                     RightStack.removeWidget(widgetToRemove)
+                else:
+                    for row in range(bottomRow, topRow - 1, -1):
+                        LeftTable.table.removeRow(row)
+                        widgetToRemove = RightStack.widget(row)
+                        RightStack.removeWidget(widgetToRemove)
                     
         LeftTable.PressEdit.connect(_press_edit)
         LeftTable.PressAdd.connect(_press_add)
@@ -297,7 +307,7 @@ class GetInfoController:
     def _CheckSelectCell(self, select_cell):
         if select_cell == []:
             ret = QMessageBox.warning(
-                self.getinfowidget, 
+                self.getinfowidget.LeftTable, 
                 'No Select Flag!',
                 'You need to select one flag.',
                 QMessageBox.Ok
@@ -305,7 +315,7 @@ class GetInfoController:
             return False
         elif len(select_cell) > 1:
             ret = QMessageBox.warning(
-                self.getinfowidget, 
+                self.getinfowidget.LeftTable, 
                 'Only Can Edit One Flag!',
                 'You need to select only row.',
                 QMessageBox.Ok
@@ -329,7 +339,68 @@ class GetInfoController:
                 # TODO value空白跳出警告
                 value = GetListData(widgetToRemove.ParameterList)
                 ABSLValue.append(value)
-            print(FlagData)
-            print()
-            print(ABSLValue)
+            # 取得column的名稱
+            header = []
+            for col_idx in range(LeftTable.columnCount()):
+                header.append(LeftTable.horizontalHeaderItem(col_idx).text())
+            
+            save_data = {}
+            for row_idx, row in enumerate(FlagData):
+                save_data[row_idx] = {}
+                save_data[row_idx]['value'] = ABSLValue[row_idx]
+                tmp_dict = {}
+                for col_idx, data in enumerate(row):
+                    tmp_dict[header[col_idx]] = data
+                save_data[row_idx]['info'] = tmp_dict
+            
+            def pretty(d, indent=0):
+                for key, value in d.items():
+                    print('\t' * indent + str(key))
+                    if isinstance(value, dict):
+                        pretty(value, indent+1)
+                    else:
+                        print('\t' * (indent+1) + str(value))
+            pretty(save_data)
+            
+            pyfile = os.path.relpath(getinfowidget.openfilewidget.pyfile_path.text())
+            pyfile = os.path.basename(pyfile).split('.')[0] + '.json'
+            print(pyfile)
+            
+            # 獲得當地時間、格式化日期
+            datetime_dt = datetime.today()
+            datetime_str = datetime_dt.strftime("%Y%m%d-%H%M")
+            
+            with open(datetime_str + '_' + pyfile, 'w') as jsonFile:
+                json.dump(save_data, jsonFile)
         getinfowidget.SaveBTN.connect(_press_save)
+    
+    def _LoadParameter(self, getinfowidget):
+        LeftTable = getinfowidget.LeftTable.table
+        RightStack = getinfowidget.RightStack
+        @QtCore.Slot()
+        def _press_load():
+            # 打開目標py檔
+            # filename, _ = QFileDialog.getOpenFileName(
+            #     getinfowidget.openfilewidget,
+            #     "Open File", 
+            #     "./",
+            #     "Python Files (*.py);;All Files (*)"
+            # )
+            # getinfowidget.openfilewidget.pyfile_path.setText(filename)
+            # 打開json檔
+            filename, _ = QFileDialog.getOpenFileName(
+                getinfowidget,
+                "Open Json File", 
+                "./",
+                "JSON Files (*.json);;All Files (*)"
+            )
+            with open(filename) as jsonFile:
+                save_data = json.load(jsonFile)
+            
+            self._ClearTable(RightStack, LeftTable)
+            flags, value_list, attr_list = ParseJsonParameter(save_data)
+            self._ShowData([flags, value_list, attr_list], 
+                           getinfowidget.RightStack,
+                           getinfowidget.LeftTable)
+                
+        getinfowidget.LoadBTN.connect(_press_load)
