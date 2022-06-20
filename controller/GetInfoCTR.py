@@ -56,6 +56,7 @@ class GetInfoController:
         getinfowidget.PressOK.connect(load_parameter)
         self._SaveParameter(getinfowidget)
         self._LoadParameter(getinfowidget)
+        self._ClearParmeter(getinfowidget)
         
     def _SetupOpenFileWidget(self, openfilewidget):
         @QtCore.Slot()
@@ -353,25 +354,27 @@ class GetInfoController:
                     tmp_dict[header[col_idx]] = data
                 save_data[row_idx]['info'] = tmp_dict
             
-            def pretty(d, indent=0):
-                for key, value in d.items():
-                    print('\t' * indent + str(key))
-                    if isinstance(value, dict):
-                        pretty(value, indent+1)
-                    else:
-                        print('\t' * (indent+1) + str(value))
-            pretty(save_data)
-            
-            pyfile = os.path.relpath(getinfowidget.openfilewidget.pyfile_path.text())
+            # 如無填入pyfile_path，pyfile_path = 'no_spec.py'
+            pyfile = getinfowidget.openfilewidget.pyfile_path.text()
+            if pyfile == '':
+                pyfile = 'no_spec.py'
+            else:
+                pyfile = os.path.relpath(pyfile)
             pyfile = os.path.basename(pyfile).split('.')[0] + '.json'
-            print(pyfile)
             
             # 獲得當地時間、格式化日期
             datetime_dt = datetime.today()
-            datetime_str = datetime_dt.strftime("%Y%m%d-%H%M")
-            
-            with open(datetime_str + '_' + pyfile, 'w') as jsonFile:
-                json.dump(save_data, jsonFile)
+            datetime_str = datetime_dt.strftime("%Y%m%d")
+            filename, _ = QFileDialog.getSaveFileName(
+                getinfowidget,
+                "Save Json File", 
+                "./" + datetime_str + '_' + pyfile,
+                "JSON Files (*.json)"
+            )
+            # 檔名非空白才能存
+            if not filename == '':
+                with open(filename, 'w') as jsonFile:
+                    json.dump(save_data, jsonFile)
         getinfowidget.SaveBTN.connect(_press_save)
     
     def _LoadParameter(self, getinfowidget):
@@ -379,14 +382,6 @@ class GetInfoController:
         RightStack = getinfowidget.RightStack
         @QtCore.Slot()
         def _press_load():
-            # 打開目標py檔
-            # filename, _ = QFileDialog.getOpenFileName(
-            #     getinfowidget.openfilewidget,
-            #     "Open File", 
-            #     "./",
-            #     "Python Files (*.py);;All Files (*)"
-            # )
-            # getinfowidget.openfilewidget.pyfile_path.setText(filename)
             # 打開json檔
             filename, _ = QFileDialog.getOpenFileName(
                 getinfowidget,
@@ -394,13 +389,23 @@ class GetInfoController:
                 "./",
                 "JSON Files (*.json);;All Files (*)"
             )
-            with open(filename) as jsonFile:
-                save_data = json.load(jsonFile)
-            
-            self._ClearTable(RightStack, LeftTable)
-            flags, value_list, attr_list = ParseJsonParameter(save_data)
-            self._ShowData([flags, value_list, attr_list], 
-                           getinfowidget.RightStack,
-                           getinfowidget.LeftTable)
+            # 有檔案再讀取
+            if os.path.exists(filename):
+                with open(filename) as jsonFile:
+                    save_data = json.load(jsonFile)
+                
+                self._ClearTable(RightStack, LeftTable)
+                flags, value_list, attr_list = ParseJsonParameter(save_data)
+                self._ShowData([flags, value_list, attr_list], 
+                            getinfowidget.RightStack,
+                            getinfowidget.LeftTable)
                 
         getinfowidget.LoadBTN.connect(_press_load)
+        
+    def _ClearParmeter(self, getinfowidget):
+        @QtCore.Slot()
+        def clear_parameter():
+            self._ClearTable(getinfowidget.RightStack, getinfowidget.LeftTable.table)
+        getinfowidget.ClearBTN.connect(clear_parameter)
+        
+

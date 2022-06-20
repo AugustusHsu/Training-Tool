@@ -73,7 +73,9 @@ class MainController:
             widgetToRemove = RightStack.widget(idx)
             value = GetListData(widgetToRemove.ParameterList)
             ABSLValue.append(value)
-        ABSLValue = np.array(ABSLValue)
+        # ABSLValue的形狀可能會不是array的形式
+        # 會跳出VisibleDeprecationWarning，加上dtype=object就不會跳出警告
+        ABSLValue = np.array(ABSLValue, dtype=object)
         
         # 確保ABSLValue的名稱包含['Path', 'Folder', 'Directory']
         # ABSLValue的個數只能有1個
