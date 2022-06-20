@@ -12,6 +12,8 @@ from absl import flags
 from absl_otherfile import test
 
 FLAGS = flags.FLAGS
+flags.DEFINE_string('DatasetFolder', 'C:\\', 'DatasetPath.')
+flags.DEFINE_string('DataPath', 'C:\\', 'DataPath.')
 flags.DEFINE_string('name', 'Jane Random', 'Your name.')
 flags.DEFINE_string('name2', None, 'Your name.')
 flags.DEFINE_boolean('debug2', True, 'Produces debugging output.')
@@ -19,7 +21,7 @@ flags.DEFINE_boolean('debug1', False, 'Produces debugging output.')
 flags.DEFINE_float('age', None, 'Your age in years.', lower_bound=0)
 flags.DEFINE_integer('age2', None, 'Your age in years.', lower_bound=0)
 flags.DEFINE_enum('job', 'running', ['running', 'stopped'], 'Job status.')
-flags.DEFINE_list('job3',['running', 'stopped'], 'Job status.')
+flags.DEFINE_list('TestDirectory',['running', 'stopped'], 'Job status.')
 
 flags.DEFINE_integer('my_version', 0, 'Version number.')
 flags.DEFINE_string('filename', None, 'Input file name.', short_name='f')

@@ -7,6 +7,7 @@
 '''
 
 # here put the import lib
+import numpy as np
 from View.GetInfoWindow.SubWidget import (
     OpenFileWidget, 
     SelectPythonWidget,
@@ -26,6 +27,9 @@ class GetInfoWidget(QWidget):
     PressOK = Signal(str, str)
     ClossBTN = Signal()
     GenBTN = Signal()
+    SaveBTN = Signal()
+    LoadBTN = Signal()
+    ClearBTN = Signal()
     def __init__(self, parent=None):
         super(GetInfoWidget, self).__init__(parent)
         self.openfilewidget = OpenFileWidget(self)
@@ -52,18 +56,26 @@ class GetInfoWidget(QWidget):
         
         self.gen_btn = QPushButton('generate', self)
         self.close_btn = QPushButton('close', self)
-        # TODO 左下的checkbox要新增功能
+        self.save_btn = QPushButton('save', self)
+        self.load_btn = QPushButton('load', self)
+        # TODO 加一個clear table的按鈕
+        self.clear_btn = QPushButton('clear', self)
         # self.checkbox = QCheckBox('show', self)
         BtnBox = QHBoxLayout()
-        # BtnBox.addWidget(self.checkbox)
+        BtnBox.addWidget(self.save_btn)
+        BtnBox.addWidget(self.load_btn)
         BtnBox.addStretch(1)
+        BtnBox.addWidget(self.clear_btn)
         BtnBox.addWidget(self.gen_btn)
         BtnBox.addWidget(self.close_btn)
         
         f_layout.addLayout(BtnBox)
         
         self.setLayout(f_layout)
+        self.save_btn.clicked.connect(self._press_save)
+        self.load_btn.clicked.connect(self._press_load)
         self.openfilewidget.ok_btn.clicked.connect(self._press_ok)
+        self.clear_btn.clicked.connect(self._press_clear)
         self.gen_btn.clicked.connect(self._press_gen)
         self.close_btn.clicked.connect(self._press_close)
         
@@ -76,6 +88,15 @@ class GetInfoWidget(QWidget):
     
     def _press_gen(self):
         self.GenBTN.emit()
+        
+    def _press_save(self):
+        self.SaveBTN.emit()
+        
+    def _press_load(self):
+        self.LoadBTN.emit()
+        
+    def _press_clear(self):
+        self.ClearBTN.emit()
         
     def display(self, index, column):
         # 設置當前可視選項的索引

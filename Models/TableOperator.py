@@ -7,6 +7,19 @@
 '''
 
 # here put the import lib
+import numpy as np
+
+def GetTableData(table):
+    table_data = []
+    n_row = table.rowCount()
+    for row in range(n_row):
+        row_data = []
+        n_col = table.columnCount()
+        for col in range(n_col):
+            item = table.item(row, col).text()
+            row_data.append(str(item))
+        table_data.append(row_data)
+    return table_data
 
 def GetFlagData(table):
     flag_list = []
